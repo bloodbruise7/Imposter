@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { PoolWord, Settings } from '../game/types';
 import { speakingOrder } from '../game/order';
 import { standings } from '../game/scoring';
-import { Button, Screen } from '../components/ui';
+import { Button, Confirm, Screen } from '../components/ui';
 import { useCountdown, useDelay, useFitText, useWakeLock, vibrate } from '../app/hooks';
 
 export interface RoundState {
@@ -79,7 +79,7 @@ export function CardScreen({ round, settings, playerIndex, onHide }: CardProps) 
         </div>
       </div>
       <div className="screen__actions screen__actions--inline">
-        <Button variant="secondary" onClick={onHide} disabled={!canHide}>
+        <Button onClick={onHide} disabled={!canHide}>
           Hide card
         </Button>
       </div>
@@ -118,16 +118,16 @@ export function ClueScreen({ players, round, timerMinutes, onVote }: ClueProps) 
         </>
       }
       actions={
-        <>
+        <div className="toolbar">
           {total > 0 && !timer.done && (
-            <Button variant="secondary" onClick={timer.running ? timer.pause : timer.resume}>
+            <Button variant="ghost" onClick={timer.running ? timer.pause : timer.resume}>
               {timer.running ? 'Pause' : 'Resume'}
             </Button>
           )}
           <Button variant={total > 0 && !timer.done ? 'secondary' : 'primary'} onClick={onVote}>
             Vote now
           </Button>
-        </>
+        </div>
       }
     >
       {round.reshuffled && (
@@ -184,9 +184,14 @@ export function VoteScreen({ players, round, k, onReveal }: VoteProps) {
       eyebrow={`Round ${round.number}`}
       title={k > 1 ? `Pick ${k} suspects` : "Who's the imposter?"}
       actions={
-        <Button onClick={() => onReveal(picked)} disabled={picked.length !== k}>
-          Reveal
-        </Button>
+        <>
+          <p className="hint" role="status">
+            {picked.length} of {k} selected
+          </p>
+          <Button onClick={() => onReveal(picked)} disabled={picked.length !== k}>
+            Reveal
+          </Button>
+        </>
       }
     >
       <p className="hint">The group decides out loud. Then tap the accused.</p>
@@ -243,9 +248,16 @@ export function RevealScreen({ players, round, settings, voted, onDone }: Reveal
       title="The reveal"
       actions={
         wordShown ? (
-          <Button onClick={() => onDone(guessed)} disabled={!allMarked}>
-            See scores
-          </Button>
+          <>
+            {!allMarked && (
+              <p className="hint" role="status">
+                Mark each caught imposter's guess first.
+              </p>
+            )}
+            <Button onClick={() => onDone(guessed)} disabled={!allMarked}>
+              See scores
+            </Button>
+          </>
         ) : (
           <Button onClick={() => setWordShown(true)}>Show the word</Button>
         )
@@ -331,6 +343,7 @@ interface ScoreboardProps {
 
 export function ScoreboardScreen({ players, scores, points, round, onNext, onSettings, onEnd }: ScoreboardProps) {
   const rows = standings(scores);
+  const [confirmEnd, setConfirmEnd] = useState(false);
   return (
     <Screen
       eyebrow={`After round ${round}`}
@@ -342,7 +355,7 @@ export function ScoreboardScreen({ players, scores, points, round, onNext, onSet
             <Button variant="secondary" onClick={onSettings}>
               Change settings
             </Button>
-            <Button variant="ghost" onClick={onEnd}>
+            <Button variant="ghost" onClick={() => setConfirmEnd(true)}>
               End game
             </Button>
           </div>
@@ -350,6 +363,15 @@ export function ScoreboardScreen({ players, scores, points, round, onNext, onSet
       }
     >
       <ScoreTable players={players} rows={rows} points={points} />
+      {confirmEnd && (
+        <Confirm
+          title="End the game?"
+          message="Final standings will be shown and the running game closes."
+          confirmLabel="Show final standings"
+          onConfirm={onEnd}
+          onCancel={() => setConfirmEnd(false)}
+        />
+      )}
     </Screen>
   );
 }
