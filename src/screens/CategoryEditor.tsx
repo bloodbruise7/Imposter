@@ -39,21 +39,14 @@ export function CategoryEditor({ category, takenNames, onSave, onDelete, onCance
     <Screen
       title={category ? 'Edit category' : 'New category'}
       actions={
-        <>
-          <div className="toolbar">
-            <Button variant="secondary" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button onClick={save} disabled={touched && !canSave}>
-              Save
-            </Button>
-          </div>
-          {category && (
-            <Button variant="ghost" onClick={() => setConfirmDelete(true)}>
-              Delete category
-            </Button>
-          )}
-        </>
+        <div className="toolbar">
+          <Button variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={save} disabled={touched && !canSave}>
+            Save
+          </Button>
+        </div>
       }
     >
       <label className="field">
@@ -107,6 +100,15 @@ export function CategoryEditor({ category, takenNames, onSave, onDelete, onCance
             </li>
           ))}
         </ul>
+      )}
+
+      {category && (
+        <>
+          <h2 className="section-title">Danger zone</h2>
+          <Button variant="ghost" onClick={() => setConfirmDelete(true)}>
+            Delete category
+          </Button>
+        </>
       )}
 
       {confirmDelete && category && (
