@@ -30,6 +30,7 @@ export function SetupScreen(p: Props) {
   const [settings, setSettings] = useState(loadSettings);
   const [view, setView] = useState<View>({ kind: 'main' });
   const [pendingEdit, setPendingEdit] = useState<(() => void) | null>(null);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   useEffect(() => store.set(KEYS.players, saved), [saved]);
   useEffect(() => store.set(KEYS.settings, settings), [settings]);
@@ -136,15 +137,19 @@ export function SetupScreen(p: Props) {
         </>
       }
     >
+      <button type="button" className="link" onClick={() => setView({ kind: 'howto' })}>
+        How to play
+      </button>
+
       {p.savedGame && !p.activeGame && (
         <div className="banner" role="region" aria-label="Saved game">
           <p className="banner__text">You have a game in progress.</p>
           <div className="banner__actions">
-            <Button variant="secondary" full={false} onClick={p.onDiscard}>
-              Discard
-            </Button>
             <Button full={false} onClick={p.onResume}>
               Resume game (Round {p.savedGame.round})
+            </Button>
+            <Button variant="ghost" full={false} onClick={() => setConfirmDiscard(true)}>
+              Discard
             </Button>
           </div>
         </div>
@@ -158,6 +163,7 @@ export function SetupScreen(p: Props) {
 
       <h2 className="section-title">Players</h2>
       <Stepper label="Players" value={saved.count} min={MIN_PLAYERS} max={MAX_PLAYERS} onChange={setCount} />
+      <p className="hint">Enter names in seating order. Cards are dealt in this order.</p>
       <ol className="names">
         {names.map((n, i) => {
           const raw = saved.names[i] ?? '';
@@ -186,8 +192,6 @@ export function SetupScreen(p: Props) {
           Two players have the same name.
         </p>
       )}
-      <p className="hint">Enter names in seating order. Cards are dealt in this order.</p>
-
       <h2 className="section-title">Game</h2>
       <Stepper
         label="Imposters"
@@ -243,11 +247,21 @@ export function SetupScreen(p: Props) {
         />
       )}
 
-      <button type="button" className="link" onClick={() => setView({ kind: 'howto' })}>
-        How to play
-      </button>
-
       {view.kind === 'howto' && <HowToPlay onClose={() => setView({ kind: 'main' })} />}
+
+      {confirmDiscard && p.savedGame && (
+        <Confirm
+          title="Discard the saved game?"
+          message={`Round ${p.savedGame.round} scores will be lost.`}
+          confirmLabel="Discard game"
+          danger
+          onConfirm={() => {
+            setConfirmDiscard(false);
+            p.onDiscard();
+          }}
+          onCancel={() => setConfirmDiscard(false)}
+        />
+      )}
 
       {pendingEdit && (
         <Confirm
