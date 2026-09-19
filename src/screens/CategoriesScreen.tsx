@@ -32,9 +32,15 @@ export function CategoriesScreen({ builtin, custom, selected, onChange, onEdit, 
 
   return (
     <Screen
-      eyebrow={`${selected.length} selected`}
       title="Categories"
-      actions={<Button onClick={onBack}>Done</Button>}
+      actions={
+        <>
+          <p className="hint" role="status">
+            {selected.length} selected
+          </p>
+          <Button onClick={onBack}>Done</Button>
+        </>
+      }
     >
       <div className="toolbar">
         <Button variant="secondary" full={false} onClick={() => onChange(allIds)}>
