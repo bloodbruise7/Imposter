@@ -12,7 +12,7 @@ export function HowToPlay({ onClose }: { onClose: () => void }) {
         </li>
         <li>Starting with the player the app picks, everyone says one word or short clue about the secret word. Vague enough to fool the imposter, clear enough to prove you know it.</li>
         <li>Talk it out, then tap the player the group accuses.</li>
-        <li>A caught imposter gets one shot to guess the word out loud.</li>
+        <li>Catching the imposter scores for the whole crew. A caught imposter then gets one shot to guess the word out loud for points of their own.</li>
       </ol>
       <h3 className="modal__subtitle">Scoring, per imposter</h3>
       <table className="table">
@@ -28,12 +28,16 @@ export function HowToPlay({ onClose }: { onClose: () => void }) {
             <td>Imposter +{ESCAPE_POINTS}</td>
           </tr>
           <tr>
-            <td>Caught, guessed the word</td>
-            <td>Imposter +{GUESS_POINTS}</td>
+            <td>Caught</td>
+            <td>Every crew member +{CATCH_POINTS}</td>
           </tr>
           <tr>
-            <td>Caught, missed</td>
-            <td>Every crew member +{CATCH_POINTS}</td>
+            <td>Caught, then guessed the word</td>
+            <td>Imposter also +{GUESS_POINTS}</td>
+          </tr>
+          <tr>
+            <td>Caught, then missed</td>
+            <td>Imposter nothing</td>
           </tr>
         </tbody>
       </table>

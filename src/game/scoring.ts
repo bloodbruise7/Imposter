@@ -12,7 +12,12 @@ export const ESCAPE_POINTS = 2;
 export const GUESS_POINTS = 2;
 export const CATCH_POINTS = 1;
 
-/** Points per player for one round, applying the S6 table once per imposter. */
+/**
+ * Points per player for one round, applied once per imposter:
+ * - got away: that imposter +ESCAPE_POINTS
+ * - caught: every non-imposter +CATCH_POINTS, and if the imposter then
+ *   guesses the word they also get +GUESS_POINTS; if they miss, nothing.
+ */
 export function scoreRound(o: RoundOutcome): number[] {
   const points = new Array<number>(o.playerCount).fill(0);
   if (o.troll) return points;
@@ -21,13 +26,12 @@ export function scoreRound(o: RoundOutcome): number[] {
   for (const imp of o.imposterIndexes) {
     if (!voted.has(imp)) {
       points[imp] += ESCAPE_POINTS;
-    } else if (o.guessed[imp]) {
-      points[imp] += GUESS_POINTS;
-    } else {
-      for (let p = 0; p < o.playerCount; p++) {
-        if (!imposters.has(p)) points[p] += CATCH_POINTS;
-      }
+      continue;
     }
+    for (let p = 0; p < o.playerCount; p++) {
+      if (!imposters.has(p)) points[p] += CATCH_POINTS;
+    }
+    if (o.guessed[imp]) points[imp] += GUESS_POINTS;
   }
   return points;
 }

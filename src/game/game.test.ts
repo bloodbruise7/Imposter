@@ -133,14 +133,25 @@ describe('scoring', () => {
     expect(pts).toEqual([0, 0, 2, 0, 0]);
   });
 
-  it('caught then guessed: that imposter +2', () => {
+  it('caught then guessed: every non-imposter +1 and that imposter +2', () => {
     const pts = scoreRound({ ...base, imposterIndexes: [2], votedIndexes: [2], guessed: { 2: true } });
-    expect(pts).toEqual([0, 0, 2, 0, 0]);
+    expect(pts).toEqual([1, 1, 2, 1, 1]);
   });
 
-  it('caught then missed: every non-imposter +1', () => {
+  it('caught then missed: every non-imposter +1, imposter nothing', () => {
     const pts = scoreRound({ ...base, imposterIndexes: [2], votedIndexes: [2], guessed: { 2: false } });
     expect(pts).toEqual([1, 1, 0, 1, 1]);
+  });
+
+  it('two imposters both caught, one guesses: crew +2, guesser +2, other 0', () => {
+    const pts = scoreRound({
+      playerCount: 7,
+      troll: false,
+      imposterIndexes: [1, 4],
+      votedIndexes: [1, 4],
+      guessed: { 1: true, 4: false },
+    });
+    expect(pts).toEqual([2, 2, 2, 2, 0, 2, 2]);
   });
 
   it('two imposters: one escapes, one caught and missed', () => {
