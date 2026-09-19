@@ -101,6 +101,12 @@ export function ClueScreen({ players, round, timerMinutes, onVote }: ClueProps) 
   const total = timerMinutes * 60;
   const timer = useCountdown(total, true);
   const order = speakingOrder(players.length, round.first);
+  /** How many clues have been given so far; wraps around for extra laps. */
+  const [turn, setTurn] = useState(0);
+  const position = turn % players.length;
+  const lap = Math.floor(turn / players.length) + 1;
+  const current = order[position];
+  const next = order[(position + 1) % players.length];
 
   useEffect(() => {
     if (timer.done) vibrate([200, 100, 200]);
@@ -108,26 +114,38 @@ export function ClueScreen({ players, round, timerMinutes, onVote }: ClueProps) 
 
   const mm = Math.floor(timer.remaining / 60);
   const ss = String(timer.remaining % 60).padStart(2, '0');
+  const timerLive = total > 0 && !timer.done;
 
   return (
     <Screen
-      eyebrow={`Round ${round.number}`}
+      eyebrow={`Round ${round.number}${lap > 1 ? ` · Lap ${lap}` : ''}`}
       title={
-        <>
-          <span className="accent">{players[round.first]}</span> goes first
-        </>
+        turn === 0 ? (
+          <>
+            <span className="accent">{players[current]}</span> goes first
+          </>
+        ) : (
+          <>
+            <span className="accent">{players[current]}</span>'s turn
+          </>
+        )
       }
       actions={
-        <div className="toolbar">
-          {total > 0 && !timer.done && (
-            <Button variant="ghost" onClick={timer.running ? timer.pause : timer.resume}>
-              {timer.running ? 'Pause' : 'Resume'}
-            </Button>
-          )}
-          <Button variant={total > 0 && !timer.done ? 'secondary' : 'primary'} onClick={onVote}>
-            Vote now
+        <>
+          <Button variant={timerLive ? 'primary' : 'secondary'} onClick={() => setTurn((t) => t + 1)}>
+            Next: {players[next]}
           </Button>
-        </div>
+          <div className="toolbar">
+            {timerLive && (
+              <Button variant="ghost" onClick={timer.running ? timer.pause : timer.resume}>
+                {timer.running ? 'Pause' : 'Resume'}
+              </Button>
+            )}
+            <Button variant={timerLive ? 'secondary' : 'primary'} onClick={onVote}>
+              Vote now
+            </Button>
+          </div>
+        </>
       }
     >
       {round.reshuffled && (
@@ -146,17 +164,20 @@ export function ClueScreen({ players, round, timerMinutes, onVote }: ClueProps) 
         </div>
       )}
       <h2 className="section-title">Speaking order</h2>
-      <ol className="order">
-        {order.map((i, n) => (
-          <li key={i} className={n === 0 ? 'is-first' : ''}>
-            <span className="order__num" aria-hidden="true">
-              {n + 1}
-            </span>
-            {players[i]}
-          </li>
-        ))}
+      <ol className="order" aria-label="Speaking order">
+        {order.map((i, n) => {
+          const state = n === position ? 'is-current' : n < position ? 'is-done' : '';
+          return (
+            <li key={i} className={state} aria-current={n === position ? 'true' : undefined}>
+              <span className="order__num" aria-hidden="true">
+                {n + 1}
+              </span>
+              {players[i]}
+            </li>
+          );
+        })}
       </ol>
-      <p className="hint">Each player gives one clue in this order. Then talk it out.</p>
+      <p className="hint">Each player gives one clue. Tap Next after each one, then talk it out.</p>
     </Screen>
   );
 }

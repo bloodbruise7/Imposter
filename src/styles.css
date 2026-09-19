@@ -762,10 +762,14 @@ body.has-modal {
   font-weight: 700;
 }
 
-.order li.is-first {
+.order li.is-current {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-text);
+}
+
+.order li.is-done {
+  color: var(--muted);
 }
 
 .order__num {
@@ -776,7 +780,7 @@ body.has-modal {
   font-variant-numeric: tabular-nums;
 }
 
-.order li.is-first .order__num {
+.order li.is-current .order__num {
   color: var(--accent-muted-text);
 }
 
