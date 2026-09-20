@@ -1,4 +1,4 @@
-# Imposter
+# Imposter.
 
 A free, family-friendly pass-and-play party word game. One phone goes around the group: everyone privately sees a secret word, except the imposter, who gets a clue (Classic) or a similar decoy word (Undercover). Give clues, vote, and keep a running score for as many rounds as you like.
 
