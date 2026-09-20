@@ -458,7 +458,7 @@ export function ScoreboardScreen({ players, scores, points, round, history, onNe
         <Confirm
           title="End the game?"
           message="Final standings will be shown and the running game closes."
-          confirmLabel="Show final standings"
+          confirmLabel="Final standings"
           onConfirm={onEnd}
           onCancel={() => setConfirmEnd(false)}
         />
