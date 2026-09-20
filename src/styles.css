@@ -1,4 +1,4 @@
-/* Imposter — "Baker Street": worn leather, aged paper, brass, oxblood, verdigris.
+/* Imposter — "Baker Street": worn leather, aged paper, brass, oxblood.
    Playfair Display for display type, IM Fell English for text, self-hosted.
    Every text/background pair below was contrast-checked at WCAG AA. */
 
@@ -59,8 +59,6 @@
   --oxblood: #7a2222;
   --oxblood-deep: #4a1414;
   --oxblood-text: #efe3c6;
-  --verdigris: #5e9c8a;
-  --verdigris-text: #0e0b09;
   --danger: var(--oxblood);
   --danger-text: var(--oxblood-text);
   --error-text: #e8a28e;
@@ -174,7 +172,7 @@ body.has-modal {
 
 .eyebrow {
   margin: 0 0 var(--space-2);
-  color: var(--verdigris);
+  color: var(--accent);
   font-family: var(--font-caps);
   font-size: 18px;
   font-weight: 400;
@@ -221,22 +219,6 @@ body.has-modal {
   display: block;
   font-size: 60px;
   letter-spacing: 0.005em;
-}
-
-/* Flourish under the wordmark: two hairlines meeting at a brass diamond. */
-.wordmark::after {
-  content: '◆';
-  display: block;
-  margin-top: var(--space-2);
-  width: 140px;
-  color: var(--accent);
-  font-family: system-ui, sans-serif;
-  font-size: 10px;
-  line-height: 1;
-  text-align: center;
-  background:
-    linear-gradient(90deg, transparent, var(--accent)) left center / 56px 1px no-repeat,
-    linear-gradient(90deg, var(--accent), transparent) right center / 56px 1px no-repeat;
 }
 
 .wordmark__dot {
@@ -293,7 +275,7 @@ body.has-modal {
   margin: 0;
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--hairline);
-  border-left: 3px solid var(--verdigris);
+  border-left: 3px solid var(--accent);
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
@@ -851,7 +833,7 @@ body.has-modal {
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  color: var(--verdigris);
+  color: var(--text);
 }
 
 .timer.is-paused .timer__value {
@@ -1002,8 +984,8 @@ body.has-modal {
 }
 
 .result--escaped .result__outcome {
-  background: var(--verdigris);
-  color: var(--verdigris-text);
+  background: var(--accent);
+  color: var(--accent-text);
 }
 
 .guesses {
@@ -1108,7 +1090,7 @@ body.has-modal {
 }
 
 .score__delta {
-  color: var(--verdigris);
+  color: var(--accent);
   font-family: var(--font-caps);
   font-size: 19px;
   font-variant-numeric: tabular-nums;
@@ -1183,7 +1165,7 @@ body.has-modal {
 .history__round {
   flex-shrink: 0;
   width: 36px;
-  color: var(--verdigris);
+  color: var(--accent);
   font-family: var(--font-caps);
   font-size: 17px;
   font-variant-numeric: tabular-nums;
