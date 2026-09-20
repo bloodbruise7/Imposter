@@ -95,7 +95,7 @@ export function loadCustomCategories(): Category[] {
   ).map((c) => ({
     id: c.id,
     name: c.name,
-    icon: '📝',
+    icon: typeof c.icon === 'string' && c.icon.trim() ? c.icon : '📝',
     words: c.words.map((w) => ({ word: w.word, hint: String(w.hint ?? ''), decoy: String(w.decoy ?? '') })),
   }));
 }
