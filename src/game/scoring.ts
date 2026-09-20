@@ -6,6 +6,8 @@ export interface RoundOutcome {
   /** For each caught imposter index, whether they guessed the word. */
   guessed: Record<number, boolean>;
   troll: boolean;
+  /** Whether every non-imposter earns CATCH_POINTS per caught imposter (group voting). Default true. */
+  catchBonus?: boolean;
 }
 
 export const ESCAPE_POINTS = 2;
@@ -28,8 +30,10 @@ export function scoreRound(o: RoundOutcome): number[] {
       points[imp] += ESCAPE_POINTS;
       continue;
     }
-    for (let p = 0; p < o.playerCount; p++) {
-      if (!imposters.has(p)) points[p] += CATCH_POINTS;
+    if (o.catchBonus !== false) {
+      for (let p = 0; p < o.playerCount; p++) {
+        if (!imposters.has(p)) points[p] += CATCH_POINTS;
+      }
     }
     if (o.guessed[imp]) points[imp] += GUESS_POINTS;
   }

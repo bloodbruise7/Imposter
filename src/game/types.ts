@@ -14,6 +14,8 @@ export interface Category {
 export type Mode = 'classic' | 'undercover';
 export type ClueMode = 'category' | 'category-hint' | 'none';
 export type TimerMinutes = 0 | 1 | 2 | 3 | 5;
+/** group: the table decides out loud and taps once. individual: each player casts a private ballot. */
+export type Voting = 'group' | 'individual';
 
 export interface Settings {
   imposters: number;
@@ -22,6 +24,7 @@ export interface Settings {
   categoryIds: string[];
   timerMinutes: TimerMinutes;
   trollMode: boolean;
+  voting: Voting;
 }
 
 /** A word drawn from the combined pool; `id` is `categoryId + "::" + word`. */

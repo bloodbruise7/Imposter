@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS: Settings = {
   categoryIds: BUILTIN.map((c) => c.id),
   timerMinutes: 2,
   trollMode: false,
+  voting: 'group',
 };
 
 export interface SavedPlayers {
@@ -75,6 +76,7 @@ export function sanitizeSettings(v: unknown): Settings {
     categoryIds: isStringArray(v.categoryIds) ? v.categoryIds : DEFAULT_SETTINGS.categoryIds,
     timerMinutes: timer,
     trollMode: v.trollMode === true,
+    voting: v.voting === 'individual' ? 'individual' : 'group',
   };
 }
 

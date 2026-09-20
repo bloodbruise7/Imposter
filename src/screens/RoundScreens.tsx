@@ -6,6 +6,7 @@ import { Button, Confirm, Screen } from '../components/ui';
 import { useCountdown, useDelay, useFitText, vibrate } from '../app/hooks';
 import { playTimesUp } from '../app/audio';
 import type { RoundRecord } from '../app/model';
+import type { Ballot } from '../game/ballots';
 
 export interface RoundState {
   number: number;
@@ -30,13 +31,22 @@ export function roman(n: number): string {
 
 /* ---------- Hand-off ---------- */
 
-export function HandoffScreen({ round, name, onShow }: { round: number; name: string; onShow: () => void }) {
+interface HandoffProps {
+  round: number;
+  name: string;
+  onShow: () => void;
+  /** Button label; defaults to the card hand-off. */
+  action?: string;
+  eyebrowNote?: string;
+}
+
+export function HandoffScreen({ round, name, onShow, action, eyebrowNote }: HandoffProps) {
   return (
-    <Screen className="screen--center" eyebrow={`Round ${roman(round)}`}>
+    <Screen className="screen--center" eyebrow={`Round ${roman(round)}${eyebrowNote ? ` · ${eyebrowNote}` : ''}`}>
       <p className="lede">Pass the phone to</p>
       <BigText text={name} />
       <div className="screen__actions screen__actions--inline">
-        <Button onClick={onShow}>I'm {name}, show my card</Button>
+        <Button onClick={onShow}>{action ?? `I'm ${name}, show my card`}</Button>
       </div>
     </Screen>
   );
@@ -225,10 +235,14 @@ interface VoteProps {
   k: number;
   /** Previous picks, when coming back from the reveal screen. */
   initial?: number[];
+  /** Individual voting: the player holding the phone. They can't vote for themselves. */
+  voter?: number;
+  /** Tiebreak: only these players are on the ballot. */
+  candidates?: number[];
   onReveal: (voted: number[]) => void;
 }
 
-export function VoteScreen({ players, round, k, initial, onReveal }: VoteProps) {
+export function VoteScreen({ players, round, k, initial, voter, candidates, onReveal }: VoteProps) {
   const [picked, setPicked] = useState<number[]>(initial ?? []);
   const toggle = (i: number) =>
     setPicked((p) => {
@@ -236,25 +250,47 @@ export function VoteScreen({ players, round, k, initial, onReveal }: VoteProps) 
       if (k === 1) return [i];
       return p.length < k ? [...p, i] : p;
     });
+  const isBallot = voter !== undefined;
+  const isTiebreak = candidates !== undefined;
+  const eligible = players
+    .map((_, i) => i)
+    .filter((i) => i !== voter && (!candidates || candidates.includes(i)));
+
+  const title = isTiebreak
+    ? `It's a tie. Pick ${k}.`
+    : isBallot
+      ? k > 1
+        ? `${players[voter]}, pick ${k} suspects`
+        : `${players[voter]}, who's the imposter?`
+      : k > 1
+        ? `Pick ${k} suspects`
+        : "Who's the imposter?";
+
+  const hint = isTiebreak
+    ? 'The vote is tied between these players. The group decides out loud, then taps.'
+    : isBallot
+      ? 'Your vote is private. Tap your pick, then lock it in and pass the phone.'
+      : 'The group decides out loud. Then tap the accused.';
 
   return (
     <Screen
-      eyebrow={`Round ${roman(round.number)}`}
-      title={k > 1 ? `Pick ${k} suspects` : "Who's the imposter?"}
+      eyebrow={`Round ${roman(round.number)}${isBallot ? ' · Private vote' : ''}`}
+      title={title}
       actions={
         <>
           <p className="hint" role="status">
             {picked.length} of {k} selected
           </p>
           <Button onClick={() => onReveal(picked)} disabled={picked.length !== k}>
-            Reveal
+            {isBallot ? 'Lock in my vote' : 'Reveal'}
           </Button>
         </>
       }
     >
-      <p className="hint">The group decides out loud. Then tap the accused.</p>
+      <p className="hint">{hint}</p>
       <ul className="tiles" role="group" aria-label="Players">
-        {players.map((name, i) => {
+        {eligible.map((i) => {
+          const name = players[i];
           const on = picked.includes(i);
           return (
             <li key={i}>
@@ -276,11 +312,13 @@ interface RevealProps {
   round: RoundState;
   settings: Settings;
   voted: number[];
+  /** Individual voting: every ballot cast, for the tally on screen. */
+  ballots?: Ballot[];
   onBack: () => void;
   onDone: (guessed: Record<number, boolean>) => void;
 }
 
-export function RevealScreen({ players, round, settings, voted, onBack, onDone }: RevealProps) {
+export function RevealScreen({ players, round, settings, voted, ballots, onBack, onDone }: RevealProps) {
   const [wordShown, setWordShown] = useState(false);
   const [guessed, setGuessed] = useState<Record<number, boolean>>({});
   const { word } = round;
@@ -338,7 +376,9 @@ export function RevealScreen({ players, round, settings, voted, onBack, onDone }
         <p className="note">Caught imposters, say your guess for the word out loud now.</p>
       )}
 
-      {!wordShown && (
+      {ballots && <VoteTally players={players} ballots={ballots} imposters={round.imposterIndexes} />}
+
+      {!wordShown && !ballots && (
         <Button variant="ghost" onClick={onBack}>
           Back to vote
         </Button>
@@ -500,6 +540,33 @@ function ScoreTable({ players, rows, points }: { players: string[]; rows: Return
         </li>
       ))}
     </ol>
+  );
+}
+
+/* ---------- Individual voting tally ---------- */
+
+function VoteTally({ players, ballots, imposters }: { players: string[]; ballots: Ballot[]; imposters: number[] }) {
+  const counts = players.map((_, i) => ballots.reduce((n, b) => n + (b.picks.includes(i) ? 1 : 0), 0));
+  const rows = players
+    .map((name, i) => ({ i, name, count: counts[i], from: ballots.filter((b) => b.picks.includes(i)).map((b) => players[b.voter]) }))
+    .filter((r) => r.count > 0)
+    .sort((a, b) => b.count - a.count || a.i - b.i);
+  return (
+    <>
+      <h2 className="section-title">The votes</h2>
+      <ol className="votes">
+        {rows.map((r) => (
+          <li key={r.i} className={`vote ${imposters.includes(r.i) ? 'vote--imposter' : ''}`}>
+            <span className="vote__count">{r.count}</span>
+            <span className="vote__body">
+              <span className="vote__name">{r.name}</span>
+              <span className="vote__from">from {r.from.join(', ')}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="hint">Correct votes earn +1. Imposters earn nothing for their vote.</p>
+    </>
   );
 }
 
