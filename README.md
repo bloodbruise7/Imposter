@@ -48,7 +48,7 @@ The app ships a web manifest and a small service worker (`public/sw.js`). On a p
 
 ## Android (Google Play)
 
-The Play listing is a Trusted Web Activity built with PWABuilder, package name `com.reliablehousekeeping.imposter`. Android only hides the browser bar when the site proves it owns the app: `public/.well-known/assetlinks.json` must list the package name and the SHA-256 fingerprint of the certificate Play signs the app with (Play Console → Test and release → Setup → App integrity → App signing key certificate). Keep the upload key fingerprint in the list too. After a deploy, check `https://<game domain>/.well-known/assetlinks.json` returns the JSON, then reinstall the app on the test phone.
+The Play listing is a Trusted Web Activity built with PWABuilder, package name `com.reliablehousekeeping.imposter`. Android only hides the browser bar when the site proves it owns the app: `public/.well-known/assetlinks.json` must list the package name and the SHA-256 fingerprint of the certificate Play signs the app with (Play Console → Test and release → Setup → App integrity → App signing key certificate). Keep the upload key fingerprint in the list too. After a deploy, check `https://imposter.reliablehousekeeping.com/.well-known/assetlinks.json` returns the JSON, then reinstall the app on the test phone.
 
 ## Custom categories
 
