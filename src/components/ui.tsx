@@ -132,10 +132,12 @@ interface ModalProps {
   children: ReactNode;
   actions?: ReactNode;
   role?: 'dialog' | 'alertdialog';
+  /** Center the panel on screen instead of docking it to the bottom. */
+  center?: boolean;
 }
 
 /** Overlay sheet. Escape closes; focus moves inside on open and returns on close. */
-export function Modal({ title, onClose, children, actions, role = 'dialog' }: ModalProps) {
+export function Modal({ title, onClose, children, actions, role = 'dialog', center = false }: ModalProps) {
   const titleId = useId();
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -155,7 +157,7 @@ export function Modal({ title, onClose, children, actions, role = 'dialog' }: Mo
   }, [onClose]);
 
   return (
-    <div className="modal" onClick={onClose}>
+    <div className={`modal ${center ? 'modal--center' : ''}`} onClick={onClose}>
       <div className="modal__panel" role={role} aria-modal="true" aria-labelledby={titleId} ref={panel} onClick={(e) => e.stopPropagation()}>
         <h2 className="modal__title" id={titleId}>
           {title}

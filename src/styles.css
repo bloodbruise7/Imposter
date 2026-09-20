@@ -1387,6 +1387,10 @@ body.has-modal {
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
 }
 
+.modal--center {
+  align-items: center;
+}
+
 .modal__panel {
   width: 100%;
   max-width: 480px;
@@ -1432,6 +1436,23 @@ body.has-modal {
 
 .modal__actions > .btn {
   flex: 1 1 0;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  margin-top: var(--space-2);
+  cursor: pointer;
+}
+
+.check input {
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  accent-color: var(--accent);
+  flex-shrink: 0;
 }
 
 .rules {

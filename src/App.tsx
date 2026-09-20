@@ -16,7 +16,9 @@ import {
 } from './app/model';
 import { unlockAudio } from './app/audio';
 import { useWakeLock } from './app/hooks';
+import { isInstalled, loadInstallState, saveInstallState, shouldPromptInstall, type BeforeInstallPromptEvent } from './app/install';
 import { Confirm } from './components/ui';
+import { InstallPrompt } from './screens/InstallPrompt';
 import { SetupScreen } from './screens/SetupScreen';
 import {
   CardScreen,
@@ -48,11 +50,37 @@ export function App() {
   const [round, setRound] = useState<RoundState | null>(null);
   const [screen, setScreen] = useState<Screen>({ kind: 'setup' });
   const [leaveAsk, setLeaveAsk] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
+  const deferredInstall = useRef<BeforeInstallPromptEvent | null>(null);
   /** The game as it stood before the current round was dealt, so a redeal can start clean. */
   const preRound = useRef<ActiveGame | null>(null);
 
   const inRound = ROUND_SCREENS.has(screen.kind);
   useWakeLock(inRound);
+
+  // Install prompt: on app load only, on the Setup screen with no game in progress,
+  // never when already installed, at most once per 24 hours, and never after opting out.
+  useEffect(() => {
+    const onBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      deferredInstall.current = e as BeforeInstallPromptEvent;
+    };
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    let timer: number | undefined;
+    if (shouldPromptInstall(loadInstallState(), Date.now(), isInstalled())) {
+      timer = window.setTimeout(() => setShowInstall(true), 900);
+    }
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+      if (timer) window.clearTimeout(timer);
+    };
+    // Runs once per app load on purpose.
+  }, []);
+
+  const closeInstall = (never: boolean) => {
+    setShowInstall(false);
+    saveInstallState({ lastShown: Date.now(), never });
+  };
 
   // Browsers only allow sound after a gesture; arm the audio context on the first tap.
   useEffect(() => {
@@ -222,20 +250,23 @@ export function App() {
 
   if (screen.kind === 'setup') {
     return (
-      <SetupScreen
-        builtin={BUILTIN}
-        custom={custom}
-        onCustomChange={updateCustom}
-        savedGame={savedGame}
-        onResume={onResume}
-        onDiscard={onDiscard}
-        activeGame={game}
-        onResetGame={() => {
-          clearActiveGame();
-          setGame(null);
-        }}
-        onStart={onStart}
-      />
+      <>
+        <SetupScreen
+          builtin={BUILTIN}
+          custom={custom}
+          onCustomChange={updateCustom}
+          savedGame={savedGame}
+          onResume={onResume}
+          onDiscard={onDiscard}
+          activeGame={game}
+          onResetGame={() => {
+            clearActiveGame();
+            setGame(null);
+          }}
+          onStart={onStart}
+        />
+        {showInstall && !game && <InstallPrompt deferred={deferredInstall.current} onClose={closeInstall} />}
+      </>
     );
   }
 
