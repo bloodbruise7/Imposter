@@ -7,7 +7,12 @@
   --bg-deep: #050409;
   --surface: #15131f;
   --surface-2: #1e1b2b;
-  --hairline: rgba(217, 164, 65, 0.22);
+  --hairline: rgba(217, 164, 65, 0.28);
+  --hairline-soft: rgba(217, 164, 65, 0.16);
+  --surface-paper: rgba(21, 19, 31, 0.9);
+  /* Inner ring inside a hairline border: the double-rule frame of an old box lid. */
+  --frame: inset 0 0 0 4px var(--surface), inset 0 0 0 5px var(--hairline-soft);
+  --engrave: inset 0 0 0 3px var(--accent), inset 0 0 0 4px rgba(11, 10, 18, 0.45);
   --line: #7a6a48;
   --text: #ede6d6;
   --muted: #a69c8a;
@@ -59,14 +64,28 @@ body {
   overflow-x: hidden;
 }
 
-/* Vignette: a fixed layer so it never scrolls with content (iOS ignores background-attachment). */
+/* Vignette with a faint candle glow at the top; fixed so it never scrolls (iOS ignores background-attachment). */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 120% 80% at 50% 12%, var(--surface) 0%, var(--bg) 55%, var(--bg-deep) 100%);
+  background:
+    radial-gradient(60% 34% at 50% 0%, rgba(217, 164, 65, 0.09), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 50% 12%, var(--surface) 0%, var(--bg) 55%, var(--bg-deep) 100%);
+}
+
+/* Paper grain: an inline SVG noise tile at low opacity, behind all content. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.075;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+  background-size: 180px 180px;
 }
 
 body.has-modal {
@@ -108,10 +127,11 @@ body.has-modal {
 .eyebrow {
   margin: 0 0 var(--space-2);
   color: var(--accent);
-  font-size: 14px;
+  font-family: var(--font-display);
+  font-size: 17px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.16em;
 }
 
 .screen__body {
@@ -131,6 +151,8 @@ body.has-modal {
   padding: var(--space-3) 0 calc(var(--space-4) + env(safe-area-inset-bottom));
   background: rgba(11, 10, 18, 0.94);
   border-top: 1px solid var(--hairline);
+  /* A second, softer rule just below the first: a double rule without extra markup. */
+  box-shadow: 0 -3px 0 -2px var(--hairline-soft);
 }
 
 .screen__actions--inline {
@@ -149,8 +171,25 @@ body.has-modal {
 }
 
 .wordmark {
+  display: block;
   font-size: 52px;
   letter-spacing: 0.01em;
+}
+
+/* Flourish under the wordmark: two hairlines meeting at a small brass diamond. */
+.wordmark::after {
+  content: '◆';
+  display: block;
+  margin-top: var(--space-2);
+  width: 120px;
+  color: var(--accent);
+  font-family: var(--font);
+  font-size: 9px;
+  line-height: 1;
+  text-align: center;
+  background:
+    linear-gradient(90deg, transparent, var(--hairline)) left center / 48px 1px no-repeat,
+    linear-gradient(90deg, var(--hairline), transparent) right center / 48px 1px no-repeat;
 }
 
 .wordmark__dot {
@@ -167,11 +206,21 @@ body.has-modal {
   margin: var(--space-3) 0 0;
   padding-bottom: var(--space-1);
   border-bottom: 1px solid var(--hairline);
-  font-size: 14px;
+  font-family: var(--font-display);
+  font-size: 17px;
   font-weight: 700;
+  font-variant-caps: small-caps;
   color: var(--muted);
-  text-transform: uppercase;
   letter-spacing: 0.14em;
+}
+
+.section-title::before {
+  content: '◆';
+  margin-right: var(--space-2);
+  color: var(--accent);
+  font-family: var(--font);
+  font-size: 9px;
+  vertical-align: middle;
 }
 
 .lede {
@@ -233,6 +282,17 @@ body.has-modal {
   text-wrap: balance;
 }
 
+/* Short fading rules above and below the featured name or word on centered screens. */
+.screen--center .big::before,
+.screen--center .big::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 1px;
+  margin: var(--space-3) auto;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
 .link {
   align-self: flex-start;
   min-height: 48px;
@@ -286,11 +346,13 @@ body.has-modal {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-text);
+  box-shadow: var(--engrave);
 }
 
 .btn--primary:hover:not(:disabled) {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
+  box-shadow: inset 0 0 0 3px var(--accent-hover), inset 0 0 0 4px rgba(11, 10, 18, 0.45);
 }
 
 .btn--secondary {
@@ -581,10 +643,11 @@ body.has-modal {
 /* ---------- Banner ---------- */
 
 .banner {
-  padding: var(--space-4);
+  padding: var(--space-5) var(--space-4);
   border: 1px solid var(--accent);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: var(--surface-paper);
+  box-shadow: var(--frame);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -676,10 +739,20 @@ body.has-modal {
 
 .card {
   width: 100%;
-  padding: var(--space-6) var(--space-4);
+  padding: var(--space-7) var(--space-5);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  /* Corner marks drawn as four L-shaped gradients, inset from the rounded edge. */
+  background:
+    linear-gradient(var(--accent), var(--accent)) top 12px left 12px / 18px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) top 12px left 12px / 1px 18px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) top 12px right 12px / 18px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) top 12px right 12px / 1px 18px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px left 12px / 18px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px left 12px / 1px 18px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px right 12px / 18px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px right 12px / 1px 18px no-repeat,
+    var(--surface-paper);
   text-align: center;
 }
 
@@ -704,10 +777,11 @@ body.has-modal {
 /* ---------- Timer and order ---------- */
 
 .timer {
-  padding: var(--space-4);
+  padding: var(--space-5) var(--space-4);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: var(--surface-paper);
+  box-shadow: var(--frame);
   text-align: center;
 }
 
@@ -849,10 +923,11 @@ body.has-modal {
 
 .result__outcome {
   flex-shrink: 0;
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 17px;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.1em;
   padding: var(--space-1) var(--space-3);
   border-radius: 999px;
 }
@@ -941,9 +1016,12 @@ body.has-modal {
 
 .score.is-leader {
   border-color: var(--accent);
+  box-shadow: var(--frame);
 }
 
 .score__rank {
+  font-family: var(--font-display);
+  font-size: 20px;
   font-weight: 700;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -972,7 +1050,7 @@ body.has-modal {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: oldstyle-nums tabular-nums;
 }
 
 .screen--final .screen__title {
@@ -1087,7 +1165,8 @@ body.has-modal {
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  padding: var(--space-5) var(--space-4);
+  box-shadow: var(--frame);
+  padding: var(--space-6) var(--space-5);
   animation: rise 250ms var(--ease-out);
 }
 
