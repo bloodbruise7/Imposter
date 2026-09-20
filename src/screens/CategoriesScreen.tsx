@@ -60,7 +60,7 @@ export function CategoriesScreen({ builtin, custom, selected, onChange, onEdit, 
             <label className="cat__main">
               <input type="checkbox" checked={isOn(c.id)} onChange={() => toggle(c.id)} />
               <span className="cat__icon" aria-hidden="true">
-                📝
+                {c.icon || '📝'}
               </span>
               <span className="cat__text">
                 <span className="cat__name">{c.name}</span>

@@ -1131,24 +1131,34 @@ body.has-modal {
   border-color: var(--oxblood);
 }
 
-.wordrow__head {
+.wordrow__main {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-2);
+  gap: var(--space-2);
 }
 
 .wordrow__num {
+  flex-shrink: 0;
+  width: 24px;
   font-family: var(--font-caps);
   font-size: 18px;
-  letter-spacing: 0.12em;
   color: var(--accent);
+  text-align: center;
+}
+
+.wordrow__word {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
 }
 
 .wordrow__remove {
+  flex-shrink: 0;
   width: 44px;
   height: 44px;
-  margin: -8px -12px -8px 0;
+  margin-right: -8px;
   border: 0;
   border-radius: 50%;
   background: transparent;
@@ -1156,6 +1166,79 @@ body.has-modal {
   font-size: 28px;
   line-height: 1;
   cursor: pointer;
+}
+
+.wordrow__more {
+  margin: var(--space-2) 0 0 32px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.wordrow__more:hover {
+  text-decoration: underline;
+}
+
+.wordrow .wordrow__grid {
+  margin-top: var(--space-3);
+}
+
+.quick {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.quick__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 20px;
+}
+
+.quick > .btn {
+  flex-shrink: 0;
+  padding: 0 var(--space-5);
+}
+
+.progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-soft);
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 250ms var(--ease-out);
+}
+
+.icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.icon-pick {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-pick.is-selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: var(--engrave);
 }
 
 .wordrow__remove:hover {
