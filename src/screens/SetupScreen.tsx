@@ -238,6 +238,16 @@ export function SetupScreen(p: Props) {
         onChange={(timerMinutes) => setSettings((s) => ({ ...s, timerMinutes: timerMinutes as TimerMinutes }))}
         options={TIMER_OPTIONS.map((m) => ({ value: m, label: m === 0 ? 'Off' : `${m} min` }))}
       />
+      <Segmented
+        label="Voting"
+        stacked
+        value={settings.voting}
+        onChange={(voting) => setSettings((s) => ({ ...s, voting }))}
+        options={[
+          { value: 'group', label: 'Group', description: 'Talk it out, then one tap for the whole table.' },
+          { value: 'individual', label: 'Individual', description: 'Pass the phone. Everyone votes in private, +1 for a correct vote.' },
+        ]}
+      />
       {isClassic && (
         <Toggle
           label="Troll Mode"

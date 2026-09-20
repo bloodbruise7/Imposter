@@ -3,6 +3,7 @@ import type { Category, Settings } from './game/types';
 import { dealRoles, nextDroughts } from './game/deal';
 import { pickFirstSpeaker } from './game/order';
 import { scoreRound } from './game/scoring';
+import { tallyBallots, voteScores, type Ballot, type Tally } from './game/ballots';
 import { buildPool, pickWord } from './game/words';
 import {
   BUILTIN,
@@ -37,11 +38,14 @@ type Screen =
   | { kind: 'card'; player: number }
   | { kind: 'clue' }
   | { kind: 'vote'; picked?: number[] }
-  | { kind: 'reveal'; voted: number[] }
+  | { kind: 'ballot-handoff'; voter: number; ballots: Ballot[] }
+  | { kind: 'ballot'; voter: number; ballots: Ballot[] }
+  | { kind: 'tiebreak'; ballots: Ballot[]; tally: Tally }
+  | { kind: 'reveal'; voted: number[]; ballots?: Ballot[] }
   | { kind: 'scoreboard'; points: number[] | null }
   | { kind: 'final' };
 
-const ROUND_SCREENS = new Set(['handoff', 'card', 'clue', 'vote', 'reveal']);
+const ROUND_SCREENS = new Set(['handoff', 'card', 'clue', 'vote', 'ballot-handoff', 'ballot', 'tiebreak', 'reveal']);
 
 export function App() {
   const [custom, setCustom] = useState<Category[]>(loadCustomCategories);
@@ -179,15 +183,37 @@ export function App() {
     else setScreen({ kind: 'clue' });
   };
 
-  const onRevealDone = (guessed: Record<number, boolean>, voted: number[]) => {
+  /** Clue phase over: group vote is one screen; individual voting passes the phone around. */
+  const onVoteNow = () => {
+    if (!game) return;
+    if (game.settings.voting === 'individual') setScreen({ kind: 'ballot-handoff', voter: 0, ballots: [] });
+    else setScreen({ kind: 'vote' });
+  };
+
+  const onBallot = (voter: number, picks: number[], previous: Ballot[]) => {
+    if (!game) return;
+    const ballots = [...previous, { voter, picks }];
+    if (voter + 1 < game.players.length) {
+      setScreen({ kind: 'ballot-handoff', voter: voter + 1, ballots });
+      return;
+    }
+    const tally = tallyBallots(game.players.length, ballots, game.settings.imposters);
+    if (tally.tie) setScreen({ kind: 'tiebreak', ballots, tally });
+    else setScreen({ kind: 'reveal', voted: tally.accused, ballots });
+  };
+
+  const onRevealDone = (guessed: Record<number, boolean>, voted: number[], ballots?: Ballot[]) => {
     if (!game || !round) return;
-    const points = scoreRound({
+    const base = scoreRound({
       playerCount: game.players.length,
       imposterIndexes: round.imposterIndexes,
       votedIndexes: voted,
       guessed,
       troll: round.troll,
+      catchBonus: !ballots,
     });
+    const votes = ballots ? voteScores(game.players.length, ballots, round.imposterIndexes, round.troll) : null;
+    const points = base.map((p, i) => p + (votes ? votes[i] : 0));
     const record: RoundRecord = {
       round: round.number,
       word: round.word.word,
@@ -316,7 +342,7 @@ export function App() {
           players={game.players}
           round={round}
           timerMinutes={game.settings.timerMinutes}
-          onVote={() => setScreen({ kind: 'vote' })}
+          onVote={onVoteNow}
           onRedeal={onRedeal}
         />
       );
@@ -332,6 +358,42 @@ export function App() {
         />
       );
       break;
+    case 'ballot-handoff':
+      body = (
+        <HandoffScreen
+          key={`ballot-${screen.voter}`}
+          round={round.number}
+          name={game.players[screen.voter]}
+          eyebrowNote="Private vote"
+          action={`I'm ${game.players[screen.voter]}, cast my vote`}
+          onShow={() => setScreen({ kind: 'ballot', voter: screen.voter, ballots: screen.ballots })}
+        />
+      );
+      break;
+    case 'ballot':
+      body = (
+        <VoteScreen
+          key={`ballot-${screen.voter}`}
+          players={game.players}
+          round={round}
+          k={Math.min(game.settings.imposters, game.players.length - 1)}
+          voter={screen.voter}
+          onReveal={(picks) => onBallot(screen.voter, picks, screen.ballots)}
+        />
+      );
+      break;
+    case 'tiebreak':
+      body = (
+        <VoteScreen
+          key="tiebreak"
+          players={game.players}
+          round={round}
+          k={screen.tally.tie?.slots ?? 1}
+          candidates={screen.tally.tie?.candidates ?? []}
+          onReveal={(picks) => setScreen({ kind: 'reveal', voted: [...screen.tally.accused, ...picks].sort((a, b) => a - b), ballots: screen.ballots })}
+        />
+      );
+      break;
     case 'reveal':
       body = (
         <RevealScreen
@@ -339,8 +401,9 @@ export function App() {
           round={round}
           settings={game.settings}
           voted={screen.voted}
+          ballots={screen.ballots}
           onBack={() => setScreen({ kind: 'vote', picked: screen.voted })}
-          onDone={(guessed) => onRevealDone(guessed, screen.voted)}
+          onDone={(guessed) => onRevealDone(guessed, screen.voted, screen.ballots)}
         />
       );
       break;

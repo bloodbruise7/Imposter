@@ -11,7 +11,10 @@ export function HowToPlay({ onClose }: { onClose: () => void }) {
           <strong>Undercover</strong>, the imposter gets a similar decoy word and does not know.
         </li>
         <li>Starting with the player the app picks, everyone says one word or short clue about the secret word. Vague enough to fool the imposter, clear enough to prove you know it.</li>
-        <li>Talk it out, then tap the player the group accuses.</li>
+        <li>
+          Talk it out, then vote. <strong>Group</strong> voting: one tap for the table. <strong>Individual</strong> voting: pass
+          the phone and everyone votes in private; +1 for each correct vote, and the most-voted player is accused.
+        </li>
         <li>Catching the imposter scores for the whole crew. A caught imposter then gets one shot to guess the word out loud for points of their own.</li>
       </ol>
       <h3 className="modal__subtitle">Scoring, per imposter</h3>
@@ -28,8 +31,12 @@ export function HowToPlay({ onClose }: { onClose: () => void }) {
             <td>Imposter +{ESCAPE_POINTS}</td>
           </tr>
           <tr>
-            <td>Caught</td>
+            <td>Caught (group voting)</td>
             <td>Every crew member +{CATCH_POINTS}</td>
+          </tr>
+          <tr>
+            <td>Correct vote (individual voting)</td>
+            <td>That voter +1</td>
           </tr>
           <tr>
             <td>Caught, then guessed the word</td>
