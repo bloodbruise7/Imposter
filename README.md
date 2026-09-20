@@ -46,6 +46,10 @@ Display type is Playfair Display and text is IM Fell English (plus its small-cap
 
 The app ships a web manifest and a small service worker (`public/sw.js`). On a phone, use "Add to Home Screen" to get an icon and a full-screen launch. After the first online visit the app keeps working without a connection; a new deploy is picked up on the next online load.
 
+## Android (Google Play)
+
+The Play listing is a Trusted Web Activity built with PWABuilder, package name `com.reliablehousekeeping.imposter`. Android only hides the browser bar when the site proves it owns the app: `public/.well-known/assetlinks.json` must list the package name and the SHA-256 fingerprint of the certificate Play signs the app with (Play Console → Protected with Play → Play Store Protection → Protection → Manage Play App Signing → App signing key, classical key SHA-256). Keep the upload key fingerprint in the list too. After a deploy, check `https://imposter.reliablehousekeeping.com/.well-known/assetlinks.json` returns the JSON, then reinstall the app on the test phone.
+
 ## Custom categories
 
 Players can create their own categories in the app. They are stored in the browser's `localStorage` on that device only.
