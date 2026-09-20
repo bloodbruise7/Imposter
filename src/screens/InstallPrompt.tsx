@@ -68,9 +68,9 @@ export function InstallPrompt({ deferred, onClose }: Props) {
       actions={
         <>
           <Button variant="secondary" onClick={() => onClose(never)}>
-            Not now
+            No
           </Button>
-          <Button onClick={yes}>Yes, install</Button>
+          <Button onClick={yes}>Yes</Button>
         </>
       }
     >
