@@ -38,6 +38,14 @@ The built-in word list lives in `src/data/categories.json`. To add or edit words
 
 The original word list was extracted from Appendix A of `imposter.md` by `scripts/extract-categories.mjs`. That script is only for the initial extraction; after that, `categories.json` is the source of truth.
 
+## Fonts and textures
+
+Display type is Playfair Display and text is IM Fell English (plus its small-caps companion), both under the SIL Open Font License. The latin subsets live in `public/fonts/` and are self-hosted, so the app makes no third-party requests. The leather and paper textures in `public/textures/` are generated tiles, not photographs.
+
+## Install and offline play
+
+The app ships a web manifest and a small service worker (`public/sw.js`). On a phone, use "Add to Home Screen" to get an icon and a full-screen launch. After the first online visit the app keeps working without a connection; a new deploy is picked up on the next online load.
+
 ## Custom categories
 
 Players can create their own categories in the app. They are stored in the browser's `localStorage` on that device only.

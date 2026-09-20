@@ -16,6 +16,18 @@ export function CategoryEditor({ category, takenNames, onSave, onDelete, onCance
   const [text, setText] = useState(category ? formatWordLines(category.words) : '');
   const [touched, setTouched] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [copied, setCopied] = useState<'idle' | 'done' | 'failed'>('idle');
+
+  const copyWords = async () => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('no clipboard');
+      await navigator.clipboard.writeText(text.trim() + '\n');
+      setCopied('done');
+    } catch {
+      setCopied('failed');
+    }
+    setTimeout(() => setCopied('idle'), 2500);
+  };
   const nameId = useId();
   const wordsId = useId();
   const helpId = useId();
@@ -92,6 +104,13 @@ export function CategoryEditor({ category, takenNames, onSave, onDelete, onCance
         {parsed.entries.length} {parsed.entries.length === 1 ? 'word' : 'words'}
         {parsed.entries.length < MIN_WORDS && ` (need ${MIN_WORDS - parsed.entries.length} more)`}
       </p>
+      {parsed.entries.length > 0 && (
+        <div className="toolbar">
+          <Button variant="ghost" onClick={copyWords}>
+            {copied === 'done' ? 'Copied' : copied === 'failed' ? "Couldn't copy, select the text instead" : 'Copy words to share'}
+          </Button>
+        </div>
+      )}
       {parsed.errors.length > 0 && (
         <ul className="errors" aria-live="polite">
           {parsed.errors.map((e) => (

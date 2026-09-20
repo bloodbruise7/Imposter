@@ -33,6 +33,19 @@ export interface ActiveGame {
   lastPoints?: number[];
   /** Rounds since each player was last the imposter; drives the fairness weighting. */
   droughts?: number[];
+  /** One entry per completed round, oldest first. */
+  history?: RoundRecord[];
+}
+
+export interface RoundRecord {
+  round: number;
+  word: string;
+  category: string;
+  /** Decoy shown to imposters in Undercover; absent in Classic. */
+  decoy?: string;
+  /** Imposter names, with whether each was caught. Empty in a troll round. */
+  imposters: { name: string; caught: boolean; guessed?: boolean }[];
+  troll: boolean;
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
@@ -111,6 +124,12 @@ export function loadActiveGame(): ActiveGame | null {
       round: v.round,
       lastPoints: isNumberArray(v.lastPoints) && v.lastPoints.length === v.players.length ? v.lastPoints : undefined,
       droughts: isNumberArray(v.droughts) && v.droughts.length === v.players.length ? v.droughts : undefined,
+      history: Array.isArray(v.history)
+        ? v.history.filter(
+            (h): h is RoundRecord =>
+              isRecord(h) && typeof h.round === 'number' && typeof h.word === 'string' && Array.isArray(h.imposters),
+          )
+        : undefined,
     };
   }
   return null;
