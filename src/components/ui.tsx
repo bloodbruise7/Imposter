@@ -127,7 +127,7 @@ export function Toggle({ label, subtitle, checked, onChange }: ToggleProps) {
 }
 
 interface ModalProps {
-  title: string;
+  title: ReactNode;
   onClose: () => void;
   children: ReactNode;
   actions?: ReactNode;
@@ -171,7 +171,7 @@ export function Modal({ title, onClose, children, actions, role = 'dialog', cent
 }
 
 interface ConfirmProps {
-  title: string;
+  title: ReactNode;
   message?: string;
   confirmLabel: string;
   danger?: boolean;

@@ -42,7 +42,7 @@ export function InstallPrompt({ deferred, onClose }: Props) {
               Scroll down and tap <strong>Add to Home Screen</strong>.
             </li>
             <li>
-              Tap <strong>Add</strong>. Imposter will open full screen from your home screen.
+              Tap <strong>Add</strong>. Imposter. will open full screen from your home screen.
             </li>
           </ol>
         ) : (
@@ -53,7 +53,7 @@ export function InstallPrompt({ deferred, onClose }: Props) {
             <li>
               Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.
             </li>
-            <li>Confirm. Imposter will open full screen from your home screen.</li>
+            <li>Confirm. Imposter. will open full screen from your home screen.</li>
           </ol>
         )}
       </Modal>
@@ -63,7 +63,7 @@ export function InstallPrompt({ deferred, onClose }: Props) {
   return (
     <Modal
       center
-      title="Keep Imposter on your phone?"
+      title={<>Keep Imposter<span className="accent">.</span> on your phone?</>}
       onClose={() => onClose(never)}
       actions={
         <>
