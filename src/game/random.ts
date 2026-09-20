@@ -33,6 +33,37 @@ export function pickDistinct(k: number, n: number, rng: Rng = cryptoRng): number
   return out.sort((a, b) => a - b);
 }
 
+/**
+ * k distinct indexes drawn without replacement, each draw proportional to its
+ * weight. Zero-weight entries are only drawn once every positive weight is used up.
+ */
+export function pickWeighted(k: number, weights: number[], rng: Rng = cryptoRng): number[] {
+  const n = weights.length;
+  if (k > n) throw new Error('pickWeighted: k exceeds weights length');
+  const remaining = weights.map((w, i) => ({ i, w: Math.max(0, w) }));
+  const out: number[] = [];
+  while (out.length < k) {
+    let total = remaining.reduce((s, r) => s + r.w, 0);
+    if (total <= 0) {
+      // Everything left is zero-weight: fall back to a uniform draw among the rest.
+      remaining.forEach((r) => (r.w = 1));
+      total = remaining.length;
+    }
+    let roll = rng() * total;
+    let chosen = remaining.length - 1;
+    for (let idx = 0; idx < remaining.length; idx++) {
+      roll -= remaining[idx].w;
+      if (roll < 0) {
+        chosen = idx;
+        break;
+      }
+    }
+    out.push(remaining[chosen].i);
+    remaining.splice(chosen, 1);
+  }
+  return out.sort((a, b) => a - b);
+}
+
 /** Builds a deterministic generator from a fixed sequence of values, for tests. */
 export function sequenceRng(values: number[]): Rng {
   let i = 0;

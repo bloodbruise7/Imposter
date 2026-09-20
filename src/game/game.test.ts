@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { maxImposters, clampImposters } from './imposters';
-import { dealRoles, TROLL_CHANCE } from './deal';
+import { dealRoles, fairnessWeights, nextDroughts, TROLL_CHANCE } from './deal';
 import { buildPool, pickWord } from './words';
 import { pickFirstSpeaker, speakingOrder } from './order';
 import { scoreRound, standings } from './scoring';
-import { pickDistinct, sequenceRng } from './random';
+import { pickDistinct, pickWeighted, sequenceRng } from './random';
 import type { Category } from './types';
 
 describe('maxImposters', () => {
@@ -54,6 +54,37 @@ describe('dealRoles', () => {
 
     const above = dealRoles(base, sequenceRng([0.9, 0.5]));
     expect(above.troll).toBe(false);
+  });
+
+  it('pickWeighted returns k distinct indexes and follows the weights', () => {
+    for (let t = 0; t < 200; t++) {
+      const picks = pickWeighted(2, [1, 1, 1, 1, 1]);
+      expect(picks).toHaveLength(2);
+      expect(new Set(picks).size).toBe(2);
+    }
+    let heavy = 0;
+    for (let t = 0; t < 2000; t++) if (pickWeighted(1, [1, 1, 1, 1, 20])[0] === 4) heavy++;
+    expect(heavy / 2000).toBeGreaterThan(0.7);
+    expect(pickWeighted(1, [0, 0, 5])).toEqual([2]);
+    expect(pickWeighted(2, [0, 0, 5]).length).toBe(2);
+  });
+
+  it('fairness weights grow with drought and droughts update after a deal', () => {
+    expect(fairnessWeights([0, 3, 1])).toEqual([1, 4, 2]);
+    const deal = { imposterIndexes: [1], troll: false };
+    expect(nextDroughts([0, 3, 1], deal)).toEqual([1, 0, 2]);
+    const troll = { imposterIndexes: [0, 1, 2], troll: true };
+    expect(nextDroughts([2, 3, 1], troll)).toEqual([0, 0, 0]);
+  });
+
+  it('weighted dealing favors the player with the longest drought', () => {
+    let dry = 0;
+    for (let t = 0; t < 2000; t++) {
+      const deal = dealRoles({ playerCount: 5, imposters: 1, mode: 'classic', trollMode: false, droughts: [0, 0, 0, 0, 9] });
+      if (deal.imposterIndexes[0] === 4) dry++;
+    }
+    expect(dry / 2000).toBeGreaterThan(0.6);
+    expect(dry / 2000).toBeLessThan(0.85);
   });
 
   it('never trolls in Undercover or with Troll Mode off', () => {
