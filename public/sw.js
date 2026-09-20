@@ -4,12 +4,13 @@
    - Everything else is network-first with the cache as a fallback, so a new
      deploy is picked up on the next online load. */
 
-const CACHE = 'imposter-v2';
+const CACHE = 'imposter-v3';
 const SHELL = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
-  '/favicon.svg',
+  '/favicon.png',
+  '/icons/icon-192.png',
   '/fonts/playfair-700.woff2',
   '/fonts/playfair-900.woff2',
   '/fonts/playfair-700i.woff2',
