@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatWordLines, parseWordLines, validateCategoryName } from './parseWords';
+import { formatWordLines, parseWordLines, validateCategoryName, validateEntries } from './parseWords';
 
 const five = ['A', 'B', 'C', 'D', 'E'];
 
@@ -52,6 +52,23 @@ describe('parseWordLines', () => {
   it('round-trips through formatWordLines', () => {
     const text = 'Pizza\nBurger | Cookout\nTaco | Crunchy | Burrito\nD\nE';
     expect(formatWordLines(parseWordLines(text).entries)).toBe(text);
+  });
+});
+
+describe('validateEntries', () => {
+  const e = (word: string, hint = '', decoy = '') => ({ word, hint, decoy });
+
+  it('ignores blank rows, trims, and reports errors by index', () => {
+    const r = validateEntries([e(' A ', ' h '), e('', '', ''), e('B'), e('a'), e('C'), e('D'), e('E')]);
+    expect(r.entries[0]).toEqual({ word: 'A', hint: 'h', decoy: '' });
+    expect(r.errors).toEqual([{ index: 3, message: '"a" is already in this category' }]);
+    expect(r.valid).toBe(false);
+  });
+
+  it('needs five valid words and flags a row with only a hint', () => {
+    expect(validateEntries([e('A'), e('B'), e('C'), e('D')]).valid).toBe(false);
+    expect(validateEntries([e('A'), e('B'), e('C'), e('D'), e('E')]).valid).toBe(true);
+    expect(validateEntries([e('', 'hint only')]).errors).toEqual([{ index: 0, message: 'Word is required' }]);
   });
 });
 

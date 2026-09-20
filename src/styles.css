@@ -1109,6 +1109,99 @@ body.has-modal {
   color: var(--accent);
 }
 
+/* ---------- Custom word editor ---------- */
+
+.wordrows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.wordrow {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.wordrow.is-invalid {
+  border-color: var(--oxblood);
+}
+
+.wordrow__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.wordrow__num {
+  font-family: var(--font-caps);
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.wordrow__remove {
+  width: 44px;
+  height: 44px;
+  margin: -8px -12px -8px 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wordrow__remove:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.wordrow__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-3);
+}
+
+.wordrow__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.wordrow__field--word {
+  grid-column: 1 / -1;
+}
+
+.wordrow__label {
+  font-family: var(--font-caps);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.wordrow .form-error {
+  margin-top: var(--space-2);
+}
+
+.textarea--short {
+  min-height: 120px;
+}
+
+.details__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-4) var(--space-4);
+}
+
 /* ---------- Round history ---------- */
 
 .details {

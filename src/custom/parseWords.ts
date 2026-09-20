@@ -17,45 +17,69 @@ export interface ParseResult {
   valid: boolean;
 }
 
+/** Validation result for a single entry, or null when it is fine. */
+export function validateEntry(entry: WordEntry, seenWords: Set<string>): string | null {
+  const word = entry.word.trim();
+  if (!word) return 'Word is required';
+  const tooLong = [word, entry.hint.trim(), entry.decoy.trim()].find((p) => p.length > MAX_PART_LENGTH);
+  if (tooLong !== undefined) return `Each part must be ${MAX_PART_LENGTH} characters or fewer`;
+  if (seenWords.has(word.toLowerCase())) return `"${word}" is already in this category`;
+  return null;
+}
+
+export interface EntryError {
+  /** 0-based index into the entries array passed in. */
+  index: number;
+  message: string;
+}
+
+/**
+ * Validates a list of entries as typed in the editor. Entries that are
+ * completely blank are ignored (like blank lines). Returns the cleaned,
+ * trimmed entries that passed, errors by index, and whether the set is saveable.
+ */
+export function validateEntries(input: WordEntry[]): { entries: WordEntry[]; errors: EntryError[]; valid: boolean } {
+  const entries: WordEntry[] = [];
+  const errors: EntryError[] = [];
+  const seen = new Set<string>();
+  input.forEach((raw, index) => {
+    const e = { word: raw.word.trim(), hint: raw.hint.trim(), decoy: raw.decoy.trim() };
+    if (!e.word && !e.hint && !e.decoy) return;
+    const message = validateEntry(e, seen);
+    if (message) {
+      errors.push({ index, message });
+      return;
+    }
+    seen.add(e.word.toLowerCase());
+    entries.push(e);
+  });
+  return { entries, errors, valid: errors.length === 0 && entries.length >= MIN_WORDS };
+}
+
 /**
  * Parses `word | hint | decoy` lines. Hint and decoy are optional.
  * Blank lines are ignored. Errors are reported per line.
  */
 export function parseWordLines(text: string): ParseResult {
-  const entries: WordEntry[] = [];
-  const errors: LineError[] = [];
-  const seen = new Set<string>();
   const lines = text.split(/\r?\n/);
-
+  const rows: { line: number; entry: WordEntry }[] = [];
+  const errors: LineError[] = [];
   lines.forEach((raw, i) => {
     const line = i + 1;
     if (raw.trim() === '') return;
     const parts = raw.split('|').map((p) => p.trim());
-    const [word = '', hint = '', decoy = ''] = parts;
     if (parts.length > 3) {
       errors.push({ line, message: 'Use at most three parts: word | hint | decoy' });
       return;
     }
-    if (!word) {
-      errors.push({ line, message: 'Word is required' });
-      return;
-    }
-    const tooLong = [word, hint, decoy].find((p) => p.length > MAX_PART_LENGTH);
-    if (tooLong !== undefined) {
-      errors.push({ line, message: `Each part must be ${MAX_PART_LENGTH} characters or fewer` });
-      return;
-    }
-    const key = word.toLowerCase();
-    if (seen.has(key)) {
-      errors.push({ line, message: `"${word}" is already in this category` });
-      return;
-    }
-    seen.add(key);
-    entries.push({ word, hint, decoy });
+    const [word = '', hint = '', decoy = ''] = parts;
+    rows.push({ line, entry: { word, hint, decoy } });
   });
-
-  const valid = errors.length === 0 && entries.length >= MIN_WORDS;
-  return { entries, errors, valid };
+  const result = validateEntries(rows.map((r) => r.entry));
+  for (const e of result.errors) errors.push({ line: rows[e.index].line, message: e.message });
+  errors.sort((a, b) => a.line - b.line);
+  const valid = errors.length === 0 && result.entries.length >= MIN_WORDS;
+  return { entries: result.entries, errors, valid };
 }
 
 /** Renders entries back into the textarea format. */
