@@ -142,8 +142,12 @@ export function Modal({ title, onClose, children, actions, role = 'dialog', cent
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const first = panel.current?.querySelector<HTMLElement>('button, [href], input, textarea, [tabindex]');
-    first?.focus();
+    // Focus the first action button (Cancel / No) so the safe choice is a tap or Enter away,
+    // and no field inside the body opens with a focus ring drawn around it.
+    const first =
+      panel.current?.querySelector<HTMLElement>('.modal__actions button') ??
+      panel.current?.querySelector<HTMLElement>('button, [href], input, textarea, [tabindex]');
+    first?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
