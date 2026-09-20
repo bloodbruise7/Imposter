@@ -5,8 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.reliablehousekeeping.imposter",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_PLAY_APP_SIGNING_KEY_SHA256",
-        "REPLACE_WITH_UPLOAD_KEY_SHA256"
+        "CD:73:26:C3:95:AD:52:FC:5D:89:34:C8:9B:25:85:FC:C6:C9:7E:98:7E:E0:0E:25:E3:FD:76:A9:4E:62:56:02",
+        "DD:31:71:EF:6D:57:B5:1F:2F:CF:2D:9F:F7:EF:6C:33:ED:21:59:BB:44:9A:0F:79:F5:BD:ED:8E:BC:58:B7:D6"
       ]
     }
   }
