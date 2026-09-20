@@ -142,8 +142,9 @@ export function Modal({ title, onClose, children, actions, role = 'dialog', cent
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const first = panel.current?.querySelector<HTMLElement>('button, [href], input, textarea, [tabindex]');
-    first?.focus();
+    // Focus the dialog itself: screen readers announce it, Tab reaches its controls,
+    // and nothing inside opens with a focus ring drawn around it.
+    panel.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
@@ -158,7 +159,7 @@ export function Modal({ title, onClose, children, actions, role = 'dialog', cent
 
   return (
     <div className={`modal ${center ? 'modal--center' : ''}`} onClick={onClose}>
-      <div className="modal__panel" role={role} aria-modal="true" aria-labelledby={titleId} ref={panel} onClick={(e) => e.stopPropagation()}>
+      <div className="modal__panel" role={role} aria-modal="true" aria-labelledby={titleId} tabIndex={-1} ref={panel} onClick={(e) => e.stopPropagation()}>
         <h2 className="modal__title" id={titleId}>
           {title}
         </h2>
