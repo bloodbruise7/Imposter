@@ -4,8 +4,21 @@
    - Everything else is network-first with the cache as a fallback, so a new
      deploy is picked up on the next online load. */
 
-const CACHE = 'imposter-v1';
-const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg'];
+const CACHE = 'imposter-v2';
+const SHELL = [
+  '/',
+  '/index.html',
+  '/manifest.webmanifest',
+  '/favicon.svg',
+  '/fonts/playfair-700.woff2',
+  '/fonts/playfair-900.woff2',
+  '/fonts/playfair-700i.woff2',
+  '/fonts/imfell-400.woff2',
+  '/fonts/imfell-400i.woff2',
+  '/fonts/imfell-sc.woff2',
+  '/textures/leather.jpg',
+  '/textures/paper.jpg',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

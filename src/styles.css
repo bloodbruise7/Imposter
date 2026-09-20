@@ -1,32 +1,83 @@
-/* Imposter — "candlelit study": near-black indigo, parchment, old brass.
-   Serif display type, hairline borders, 12px corners, a soft vignette.
+/* Imposter — "Baker Street": worn leather, aged paper, brass, oxblood, verdigris.
+   Playfair Display for display type, IM Fell English for text, self-hosted.
    Every text/background pair below was contrast-checked at WCAG AA. */
 
+@font-face {
+  font-family: 'Playfair Display';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/playfair-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/playfair-900.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+  src: url('/fonts/playfair-700i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IM Fell English';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/imfell-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IM Fell English';
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  src: url('/fonts/imfell-400i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IM Fell English SC';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/imfell-sc.woff2') format('woff2');
+}
+
 :root {
-  --bg: #0b0a12;
-  --bg-deep: #050409;
-  --surface: #15131f;
-  --surface-2: #1e1b2b;
-  --hairline: rgba(217, 164, 65, 0.28);
-  --hairline-soft: rgba(217, 164, 65, 0.16);
-  --surface-paper: rgba(21, 19, 31, 0.9);
-  /* Inner ring inside a hairline border: the double-rule frame of an old box lid. */
-  --frame: inset 0 0 0 4px var(--surface), inset 0 0 0 5px var(--hairline-soft);
-  --engrave: inset 0 0 0 3px var(--accent), inset 0 0 0 4px rgba(11, 10, 18, 0.45);
-  --line: #7a6a48;
-  --text: #ede6d6;
-  --muted: #a69c8a;
+  --bg: #0e0b09;
+  --bg-deep: #060403;
+  --surface: #1c1410;
+  --surface-2: #2a1e17;
+  --text: #efe3c6;
+  --muted: #ae9e82;
   --accent: #d9a441;
   --accent-hover: #e6b556;
-  --accent-text: #0b0a12;
+  --accent-text: #0e0b09;
   --accent-muted-text: #3d2e0d;
-  --danger: #b8322f;
-  --danger-text: #ffffff;
-  --error-text: #e6907f;
+  --oxblood: #7a2222;
+  --oxblood-deep: #4a1414;
+  --oxblood-text: #efe3c6;
+  --verdigris: #5e9c8a;
+  --verdigris-text: #0e0b09;
+  --danger: var(--oxblood);
+  --danger-text: var(--oxblood-text);
+  --error-text: #e8a28e;
+  --hairline: rgba(217, 164, 65, 0.34);
+  --hairline-soft: rgba(217, 164, 65, 0.18);
+  --line: #8a7048;
 
-  --radius-lg: 12px;
-  --radius-md: 12px;
-  --radius-sm: 10px;
+  --leather: url('/textures/leather.jpg');
+  --paper: url('/textures/paper.jpg');
+
+  /* Double-rule frame: a second thin rule inset from the border. */
+  --frame: inset 0 0 0 4px rgba(14, 11, 9, 0.35), inset 0 0 0 5px var(--hairline-soft);
+  --engrave: inset 0 0 0 3px var(--accent), inset 0 0 0 4px rgba(14, 11, 9, 0.5);
+
+  --radius-lg: 10px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -35,8 +86,10 @@
   --space-6: 32px;
   --space-7: 48px;
   --tap: 56px;
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, 'Times New Roman', serif;
+  --font-display: 'Playfair Display', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --font-body: 'IM Fell English', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --font-caps: 'IM Fell English SC', 'IM Fell English', Georgia, serif;
+  --font: var(--font-body);
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -57,14 +110,14 @@ body {
   min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font);
-  font-size: 18px;
+  font-family: var(--font-body);
+  font-size: 19px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-/* Vignette with a faint candle glow at the top; fixed so it never scrolls (iOS ignores background-attachment). */
+/* Worn leather, fixed so it never scrolls, darkened toward the edges with a lamp glow at the top. */
 body::before {
   content: '';
   position: fixed;
@@ -72,20 +125,10 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60% 34% at 50% 0%, rgba(217, 164, 65, 0.09), transparent 70%),
-    radial-gradient(ellipse 120% 80% at 50% 12%, var(--surface) 0%, var(--bg) 55%, var(--bg-deep) 100%);
-}
-
-/* Paper grain: an inline SVG noise tile at low opacity, behind all content. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.075;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
-  background-size: 180px 180px;
+    radial-gradient(70% 36% at 50% 0%, rgba(217, 164, 65, 0.14), transparent 70%),
+    radial-gradient(ellipse 110% 90% at 50% 20%, rgba(14, 11, 9, 0.35) 0%, rgba(14, 11, 9, 0.7) 60%, rgba(6, 4, 3, 0.92) 100%),
+    var(--leather) center / 384px 384px repeat,
+    var(--bg);
 }
 
 body.has-modal {
@@ -112,26 +155,30 @@ body.has-modal {
 
 .screen__header {
   margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  /* Ornamental double rule under every header. */
+  background:
+    linear-gradient(90deg, var(--hairline), var(--hairline-soft) 60%, transparent) left bottom / 100% 1px no-repeat,
+    linear-gradient(90deg, var(--hairline), transparent 70%) left bottom 3px / 60% 1px no-repeat;
 }
 
 .screen__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 38px;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.005em;
   overflow-wrap: anywhere;
 }
 
 .eyebrow {
   margin: 0 0 var(--space-2);
-  color: var(--accent);
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 700;
-  font-variant-caps: small-caps;
-  letter-spacing: 0.16em;
+  color: var(--verdigris);
+  font-family: var(--font-caps);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
 }
 
 .screen__body {
@@ -149,15 +196,15 @@ body.has-modal {
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-3) 0 calc(var(--space-4) + env(safe-area-inset-bottom));
-  background: rgba(11, 10, 18, 0.94);
+  background: rgba(14, 11, 9, 0.93);
   border-top: 1px solid var(--hairline);
-  /* A second, softer rule just below the first: a double rule without extra markup. */
   box-shadow: 0 -3px 0 -2px var(--hairline-soft);
 }
 
 .screen__actions--inline {
   position: static;
   border-top: 0;
+  box-shadow: none;
   background: transparent;
   width: 100%;
   margin-top: var(--space-6);
@@ -172,24 +219,24 @@ body.has-modal {
 
 .wordmark {
   display: block;
-  font-size: 52px;
-  letter-spacing: 0.01em;
+  font-size: 60px;
+  letter-spacing: 0.005em;
 }
 
-/* Flourish under the wordmark: two hairlines meeting at a small brass diamond. */
+/* Flourish under the wordmark: two hairlines meeting at a brass diamond. */
 .wordmark::after {
   content: '◆';
   display: block;
   margin-top: var(--space-2);
-  width: 120px;
+  width: 140px;
   color: var(--accent);
-  font-family: var(--font);
-  font-size: 9px;
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
   line-height: 1;
   text-align: center;
   background:
-    linear-gradient(90deg, transparent, var(--hairline)) left center / 48px 1px no-repeat,
-    linear-gradient(90deg, var(--hairline), transparent) right center / 48px 1px no-repeat;
+    linear-gradient(90deg, transparent, var(--accent)) left center / 56px 1px no-repeat,
+    linear-gradient(90deg, var(--accent), transparent) right center / 56px 1px no-repeat;
 }
 
 .wordmark__dot {
@@ -206,35 +253,34 @@ body.has-modal {
   margin: var(--space-3) 0 0;
   padding-bottom: var(--space-1);
   border-bottom: 1px solid var(--hairline);
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 700;
-  font-variant-caps: small-caps;
+  font-family: var(--font-caps);
+  font-size: 19px;
+  font-weight: 400;
   color: var(--muted);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
 }
 
 .section-title::before {
   content: '◆';
   margin-right: var(--space-2);
   color: var(--accent);
-  font-family: var(--font);
+  font-family: system-ui, sans-serif;
   font-size: 9px;
   vertical-align: middle;
 }
 
 .lede {
   margin: 0;
-  font-size: 20px;
+  font-family: var(--font-caps);
+  font-size: 22px;
   color: var(--muted);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.12em;
 }
 
 .hint {
   margin: 0;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 17px;
 }
 
 .hint code {
@@ -247,18 +293,17 @@ body.has-modal {
   margin: 0;
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--hairline);
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--verdigris);
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .form-error {
   margin: 0;
   color: var(--error-text);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
 }
 
 .errors {
@@ -275,19 +320,18 @@ body.has-modal {
   margin: var(--space-3) 0;
   font-family: var(--font-display);
   font-size: 64px;
-  font-weight: 700;
+  font-weight: 900;
   line-height: 1.05;
   letter-spacing: -0.01em;
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
 
-/* Short fading rules above and below the featured name or word on centered screens. */
 .screen--center .big::before,
 .screen--center .big::after {
   content: '';
   display: block;
-  width: 72px;
+  width: 88px;
   height: 1px;
   margin: var(--space-3) auto;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
@@ -301,9 +345,11 @@ body.has-modal {
   background: none;
   color: var(--accent);
   font: inherit;
-  font-weight: 700;
+  font-family: var(--font-caps);
+  font-size: 20px;
+  letter-spacing: 0.1em;
   text-decoration: underline;
-  text-underline-offset: 4px;
+  text-underline-offset: 5px;
   text-decoration-color: var(--hairline);
   cursor: pointer;
 }
@@ -316,9 +362,9 @@ body.has-modal {
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   font: inherit;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-family: var(--font-caps);
+  font-size: 21px;
+  letter-spacing: 0.08em;
   line-height: 1.2;
   cursor: pointer;
   transition:
@@ -352,17 +398,18 @@ body.has-modal {
 .btn--primary:hover:not(:disabled) {
   background: var(--accent-hover);
   border-color: var(--accent-hover);
-  box-shadow: inset 0 0 0 3px var(--accent-hover), inset 0 0 0 4px rgba(11, 10, 18, 0.45);
+  box-shadow: inset 0 0 0 3px var(--accent-hover), inset 0 0 0 4px rgba(14, 11, 9, 0.5);
 }
 
 .btn--secondary {
   background: var(--surface-2);
   border-color: var(--line);
   color: var(--text);
+  box-shadow: var(--frame);
 }
 
 .btn--secondary:hover:not(:disabled) {
-  background: #27233a;
+  background: #34261d;
 }
 
 .btn--ghost {
@@ -376,9 +423,10 @@ body.has-modal {
 }
 
 .btn--danger {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: var(--danger-text);
+  background: var(--oxblood);
+  border-color: var(--oxblood);
+  color: var(--oxblood-text);
+  box-shadow: inset 0 0 0 3px var(--oxblood), inset 0 0 0 4px rgba(14, 11, 9, 0.5);
 }
 
 .toolbar {
@@ -431,12 +479,14 @@ body.has-modal {
 }
 
 .row__label {
-  font-weight: 700;
+  font-family: var(--font-caps);
+  font-size: 21px;
+  letter-spacing: 0.06em;
 }
 
 .row__hint {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .row__chevron {
@@ -474,8 +524,8 @@ body.has-modal {
   min-width: 44px;
   text-align: center;
   font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
 }
 
@@ -497,17 +547,18 @@ body.has-modal {
   background: var(--surface);
   color: var(--text);
   font: inherit;
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .input::placeholder {
   color: var(--muted);
   opacity: 1;
+  font-style: italic;
 }
 
 .input.is-invalid {
-  border-color: var(--danger);
-  box-shadow: inset 0 0 0 1px var(--danger);
+  border-color: var(--oxblood);
+  box-shadow: inset 0 0 0 1px var(--oxblood);
 }
 
 .textarea {
@@ -523,7 +574,9 @@ body.has-modal {
 }
 
 .field__label {
-  font-weight: 700;
+  font-family: var(--font-caps);
+  font-size: 21px;
+  letter-spacing: 0.06em;
 }
 
 /* Segmented radio group */
@@ -591,15 +644,17 @@ body.has-modal {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-text);
+  box-shadow: var(--engrave);
 }
 
 .seg__label {
-  font-weight: 700;
-  font-size: 16px;
+  font-family: var(--font-caps);
+  font-size: 19px;
+  letter-spacing: 0.06em;
 }
 
 .seg__desc {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--muted);
 }
 
@@ -646,7 +701,7 @@ body.has-modal {
   padding: var(--space-5) var(--space-4);
   border: 1px solid var(--accent);
   border-radius: var(--radius-lg);
-  background: var(--surface-paper);
+  background: var(--paper) center / 512px repeat, var(--surface);
   box-shadow: var(--frame);
   display: flex;
   flex-direction: column;
@@ -656,7 +711,7 @@ body.has-modal {
 .banner__text {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
 }
 
@@ -720,39 +775,42 @@ body.has-modal {
 }
 
 .cat__name {
-  font-weight: 700;
+  font-family: var(--font-caps);
+  font-size: 20px;
+  letter-spacing: 0.05em;
 }
 
 .cat__count {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .cat > .btn {
   margin-right: var(--space-2);
   min-height: 44px;
   padding: 0 var(--space-4);
-  font-size: 16px;
+  font-size: 18px;
 }
 
-/* ---------- Card ---------- */
+/* ---------- Card: a folded note on the desk ---------- */
 
 .card {
   width: 100%;
   padding: var(--space-7) var(--space-5);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
-  /* Corner marks drawn as four L-shaped gradients, inset from the rounded edge. */
   background:
-    linear-gradient(var(--accent), var(--accent)) top 12px left 12px / 18px 1px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) top 12px left 12px / 1px 18px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) top 12px right 12px / 18px 1px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) top 12px right 12px / 1px 18px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) bottom 12px left 12px / 18px 1px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) bottom 12px left 12px / 1px 18px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) bottom 12px right 12px / 18px 1px no-repeat,
-    linear-gradient(var(--accent), var(--accent)) bottom 12px right 12px / 1px 18px no-repeat,
-    var(--surface-paper);
+    linear-gradient(var(--accent), var(--accent)) top 12px left 12px / 20px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) top 12px left 12px / 1px 20px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) top 12px right 12px / 20px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) top 12px right 12px / 1px 20px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px left 12px / 20px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px left 12px / 1px 20px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px right 12px / 20px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) bottom 12px right 12px / 1px 20px no-repeat,
+    var(--paper) center / 512px repeat,
+    var(--surface);
+  box-shadow: var(--frame), 0 24px 40px -24px rgba(0, 0, 0, 0.9);
   text-align: center;
 }
 
@@ -769,9 +827,9 @@ body.has-modal {
 
 .card__line {
   margin: 0;
-  font-size: 20px;
+  font-size: 21px;
   color: var(--muted);
-  font-weight: 600;
+  font-style: italic;
 }
 
 /* ---------- Timer and order ---------- */
@@ -780,7 +838,7 @@ body.has-modal {
   padding: var(--space-5) var(--space-4);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
-  background: var(--surface-paper);
+  background: var(--paper) center / 512px repeat, var(--surface);
   box-shadow: var(--frame);
   text-align: center;
 }
@@ -788,11 +846,12 @@ body.has-modal {
 .timer__value {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 84px;
-  font-weight: 700;
+  font-size: 88px;
+  font-weight: 900;
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  color: var(--verdigris);
 }
 
 .timer.is-paused .timer__value {
@@ -806,10 +865,9 @@ body.has-modal {
 .timer__status {
   margin: var(--space-2) 0 0;
   min-height: 1.5em;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: var(--font-caps);
+  font-size: 22px;
+  letter-spacing: 0.14em;
   color: var(--accent);
 }
 
@@ -826,13 +884,13 @@ body.has-modal {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: 48px;
+  min-height: 50px;
   padding: var(--space-2) var(--space-4);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-sm);
   background: var(--surface);
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 700;
 }
 
@@ -840,6 +898,7 @@ body.has-modal {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-text);
+  box-shadow: var(--engrave);
 }
 
 .order li.is-done {
@@ -848,8 +907,8 @@ body.has-modal {
 
 .order__num {
   width: 28px;
-  font-family: var(--font);
-  font-size: 15px;
+  font-family: var(--font-caps);
+  font-size: 17px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -871,14 +930,15 @@ body.has-modal {
 
 .tile {
   width: 100%;
-  min-height: 72px;
+  min-height: 76px;
   padding: var(--space-3);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--surface);
+  background: var(--paper) center / 512px repeat, var(--surface);
+  box-shadow: var(--frame);
   color: var(--text);
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 23px;
   font-weight: 700;
   overflow-wrap: anywhere;
   cursor: pointer;
@@ -886,9 +946,10 @@ body.has-modal {
 }
 
 .tile.is-selected {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-text);
+  background: var(--oxblood);
+  border-color: var(--oxblood);
+  color: var(--oxblood-text);
+  box-shadow: inset 0 0 0 3px var(--oxblood), inset 0 0 0 4px rgba(14, 11, 9, 0.5);
 }
 
 /* ---------- Reveal ---------- */
@@ -907,39 +968,42 @@ body.has-modal {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  min-height: 64px;
+  min-height: 66px;
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
   background: var(--surface);
 }
 
+.result--caught {
+  border-color: rgba(122, 34, 34, 0.8);
+  background: linear-gradient(90deg, rgba(122, 34, 34, 0.25), transparent 60%), var(--surface);
+}
+
 .result__name {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 25px;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .result__outcome {
   flex-shrink: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 17px;
-  font-variant-caps: small-caps;
-  letter-spacing: 0.1em;
+  font-family: var(--font-caps);
+  font-size: 18px;
+  letter-spacing: 0.12em;
   padding: var(--space-1) var(--space-3);
   border-radius: 999px;
 }
 
 .result--caught .result__outcome {
-  background: var(--danger);
-  color: var(--danger-text);
+  background: var(--oxblood);
+  color: var(--oxblood-text);
 }
 
 .result--escaped .result__outcome {
-  background: var(--accent);
-  color: var(--accent-text);
+  background: var(--verdigris);
+  color: var(--verdigris-text);
 }
 
 .guesses {
@@ -963,6 +1027,8 @@ body.has-modal {
 }
 
 .guess__name {
+  font-family: var(--font-display);
+  font-size: 20px;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
@@ -981,7 +1047,9 @@ body.has-modal {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-weight: 700;
+  font-family: var(--font-caps);
+  font-size: 19px;
+  letter-spacing: 0.06em;
   cursor: pointer;
 }
 
@@ -991,7 +1059,7 @@ body.has-modal {
   color: var(--accent-text);
 }
 
-/* ---------- Scoreboard ---------- */
+/* ---------- Scoreboard: the ledger ---------- */
 
 .scores {
   margin: 0;
@@ -1016,13 +1084,14 @@ body.has-modal {
 
 .score.is-leader {
   border-color: var(--accent);
+  background: var(--paper) center / 512px repeat, var(--surface);
   box-shadow: var(--frame);
 }
 
 .score__rank {
   font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 900;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1033,14 +1102,15 @@ body.has-modal {
 
 .score__name {
   font-family: var(--font-display);
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .score__delta {
-  color: var(--accent);
-  font-weight: 700;
+  color: var(--verdigris);
+  font-family: var(--font-caps);
+  font-size: 19px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1048,8 +1118,8 @@ body.has-modal {
   min-width: 2ch;
   text-align: right;
   font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 900;
   font-variant-numeric: oldstyle-nums tabular-nums;
 }
 
@@ -1068,7 +1138,9 @@ body.has-modal {
 .details__summary {
   min-height: 48px;
   padding: var(--space-3) var(--space-4);
-  font-weight: 700;
+  font-family: var(--font-caps);
+  font-size: 20px;
+  letter-spacing: 0.08em;
   cursor: pointer;
   list-style: none;
   display: flex;
@@ -1105,15 +1177,15 @@ body.has-modal {
   display: flex;
   gap: var(--space-3);
   padding-top: var(--space-2);
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid var(--hairline-soft);
 }
 
 .history__round {
   flex-shrink: 0;
   width: 36px;
-  color: var(--muted);
-  font-size: 15px;
-  font-weight: 700;
+  color: var(--verdigris);
+  font-family: var(--font-caps);
+  font-size: 17px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1126,19 +1198,20 @@ body.has-modal {
 
 .history__word {
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
 }
 
 .history__cat {
-  font-family: var(--font);
-  font-size: 15px;
+  font-family: var(--font-body);
+  font-size: 16px;
   font-weight: 400;
+  font-style: italic;
   color: var(--muted);
 }
 
 .history__imp {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--muted);
 }
 
@@ -1151,7 +1224,7 @@ body.has-modal {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(5, 4, 9, 0.78);
+  background: rgba(6, 4, 3, 0.8);
   padding: var(--space-4);
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
 }
@@ -1164,8 +1237,8 @@ body.has-modal {
   flex-direction: column;
   border: 1px solid var(--hairline);
   border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow: var(--frame);
+  background: var(--paper) center / 512px repeat, var(--surface);
+  box-shadow: var(--frame), 0 30px 60px -20px rgba(0, 0, 0, 0.9);
   padding: var(--space-6) var(--space-5);
   animation: rise 250ms var(--ease-out);
 }
@@ -1173,15 +1246,15 @@ body.has-modal {
 .modal__title {
   margin: 0 0 var(--space-3);
   font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 900;
 }
 
 .modal__subtitle {
   margin: var(--space-4) 0 var(--space-2);
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
+  font-family: var(--font-caps);
+  font-size: 21px;
+  letter-spacing: 0.08em;
 }
 
 .modal__body {
@@ -1214,7 +1287,7 @@ body.has-modal {
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .table th,
@@ -1226,8 +1299,9 @@ body.has-modal {
 
 .table th {
   color: var(--muted);
-  font-size: 14px;
-  text-transform: uppercase;
+  font-family: var(--font-caps);
+  font-weight: 400;
+  font-size: 17px;
   letter-spacing: 0.1em;
 }
 

@@ -16,11 +16,23 @@ export interface RoundState {
   reshuffled: boolean;
 }
 
+/** Roman numerals for round labels: the ledger look. */
+export function roman(n: number): string {
+  if (n <= 0 || n >= 4000) return String(n);
+  const table: [number, string][] = [
+    [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'],
+    [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
+  ];
+  let out = '';
+  for (const [v, s] of table) while (n >= v) { out += s; n -= v; }
+  return out;
+}
+
 /* ---------- Hand-off ---------- */
 
 export function HandoffScreen({ round, name, onShow }: { round: number; name: string; onShow: () => void }) {
   return (
-    <Screen className="screen--center" eyebrow={`Round ${round}`}>
+    <Screen className="screen--center" eyebrow={`Round ${roman(round)}`}>
       <p className="lede">Pass the phone to</p>
       <BigText text={name} />
       <div className="screen__actions screen__actions--inline">
@@ -68,7 +80,7 @@ export function CardScreen({ round, settings, playerIndex, onHide }: CardProps) 
   }
 
   return (
-    <Screen className="screen--center" eyebrow={`Round ${round.number}`}>
+    <Screen className="screen--center" eyebrow={`Round ${roman(round.number)}`}>
       <div className="card">
         <p className="lede">{label}</p>
         <BigText text={big} />
@@ -124,7 +136,7 @@ export function ClueScreen({ players, round, timerMinutes, onVote, onRedeal }: C
 
   return (
     <Screen
-      eyebrow={`Round ${round.number}${lap > 1 ? ` · Lap ${lap}` : ''}`}
+      eyebrow={`Round ${roman(round.number)}${lap > 1 ? ` · Lap ${lap}` : ''}`}
       title={
         turn === 0 ? (
           <>
@@ -227,7 +239,7 @@ export function VoteScreen({ players, round, k, initial, onReveal }: VoteProps) 
 
   return (
     <Screen
-      eyebrow={`Round ${round.number}`}
+      eyebrow={`Round ${roman(round.number)}`}
       title={k > 1 ? `Pick ${k} suspects` : "Who's the imposter?"}
       actions={
         <>
@@ -277,7 +289,7 @@ export function RevealScreen({ players, round, settings, voted, onBack, onDone }
 
   if (round.troll) {
     return (
-      <Screen className="screen--center" eyebrow={`Round ${round.number}`} actions={<Button onClick={() => onDone({})}>See scores</Button>}>
+      <Screen className="screen--center" eyebrow={`Round ${roman(round.number)}`} actions={<Button onClick={() => onDone({})}>See scores</Button>}>
         <p className="lede">Troll round!</p>
         <BigText text="Everyone was the imposter" max={44} />
         <div className="card__lines">
@@ -291,7 +303,7 @@ export function RevealScreen({ players, round, settings, voted, onBack, onDone }
 
   return (
     <Screen
-      eyebrow={`Round ${round.number}`}
+      eyebrow={`Round ${roman(round.number)}`}
       title="The reveal"
       actions={
         wordShown ? (
@@ -400,7 +412,7 @@ export function ScoreboardScreen({ players, scores, points, round, history, onNe
   const [confirmEnd, setConfirmEnd] = useState(false);
   return (
     <Screen
-      eyebrow={`After round ${round}`}
+      eyebrow={`After round ${roman(round)}`}
       title="Scoreboard"
       actions={
         <>
