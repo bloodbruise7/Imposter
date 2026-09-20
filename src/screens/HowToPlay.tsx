@@ -41,7 +41,10 @@ export function HowToPlay({ onClose }: { onClose: () => void }) {
           </tr>
         </tbody>
       </table>
-      <p className="hint">Troll rounds (everyone is the imposter) score nothing. The game runs until you end it.</p>
+      <p className="hint">
+        Troll rounds (everyone is the imposter) score nothing. The game runs until you end it. The imposter draw is random
+        but leans toward players who haven't been it in a while, so nobody waits forever.
+      </p>
     </Modal>
   );
 }

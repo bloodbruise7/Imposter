@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Category, Settings } from './game/types';
-import { dealRoles } from './game/deal';
+import { dealRoles, nextDroughts } from './game/deal';
 import { pickFirstSpeaker } from './game/order';
 import { scoreRound } from './game/scoring';
 import { buildPool, pickWord } from './game/words';
@@ -50,13 +50,15 @@ export function App() {
   const startRound = (g: ActiveGame) => {
     const pool = buildPool([...BUILTIN, ...custom], g.settings.categoryIds, g.settings.mode);
     const pick = pickWord(pool, g.playedIds);
+    const droughts = g.droughts ?? g.players.map(() => 0);
     const deal = dealRoles({
       playerCount: g.players.length,
       imposters: g.settings.imposters,
       mode: g.settings.mode,
       trollMode: g.settings.trollMode,
+      droughts,
     });
-    setGame({ ...g, playedIds: pick.playedIds });
+    setGame({ ...g, playedIds: pick.playedIds, droughts: nextDroughts(droughts, deal) });
     setRound({
       number: g.round + 1,
       word: pick.word,
