@@ -64,27 +64,38 @@ interface WakeLockSentinel {
   release(): Promise<void>;
 }
 
-/** Holds a screen wake lock while the component is mounted, where the API exists. */
-export function useWakeLock(): void {
+/**
+ * Holds a screen wake lock while `active` is true, where the API exists.
+ * The browser drops the lock when the tab is hidden, so it is re-requested
+ * whenever the page becomes visible again.
+ */
+export function useWakeLock(active: boolean): void {
   useEffect(() => {
+    if (!active) return;
     const nav = navigator as Navigator & {
       wakeLock?: { request(type: 'screen'): Promise<WakeLockSentinel> };
     };
     if (!nav.wakeLock) return;
-    let active = true;
+    let alive = true;
     let lock: WakeLockSentinel | null = null;
-    nav.wakeLock
-      .request('screen')
-      .then((l) => {
-        if (active) lock = l;
-        else l.release().catch(() => {});
-      })
-      .catch(() => {});
+    const request = () => {
+      if (!alive || document.visibilityState !== 'visible') return;
+      nav.wakeLock!
+        .request('screen')
+        .then((l) => {
+          if (alive) lock = l;
+          else l.release().catch(() => {});
+        })
+        .catch(() => {});
+    };
+    request();
+    document.addEventListener('visibilitychange', request);
     return () => {
-      active = false;
+      alive = false;
+      document.removeEventListener('visibilitychange', request);
       lock?.release().catch(() => {});
     };
-  }, []);
+  }, [active]);
 }
 
 export function vibrate(pattern: number | number[]): void {

@@ -3,7 +3,9 @@ import type { PoolWord, Settings } from '../game/types';
 import { speakingOrder } from '../game/order';
 import { standings } from '../game/scoring';
 import { Button, Confirm, Screen } from '../components/ui';
-import { useCountdown, useDelay, useFitText, useWakeLock, vibrate } from '../app/hooks';
+import { useCountdown, useDelay, useFitText, vibrate } from '../app/hooks';
+import { playTimesUp } from '../app/audio';
+import type { RoundRecord } from '../app/model';
 
 export interface RoundState {
   number: number;
@@ -94,10 +96,11 @@ interface ClueProps {
   round: RoundState;
   timerMinutes: number;
   onVote: () => void;
+  onRedeal: () => void;
 }
 
-export function ClueScreen({ players, round, timerMinutes, onVote }: ClueProps) {
-  useWakeLock();
+export function ClueScreen({ players, round, timerMinutes, onVote, onRedeal }: ClueProps) {
+  const [confirmRedeal, setConfirmRedeal] = useState(false);
   const total = timerMinutes * 60;
   const timer = useCountdown(total, true);
   const order = speakingOrder(players.length, round.first);
@@ -109,7 +112,10 @@ export function ClueScreen({ players, round, timerMinutes, onVote }: ClueProps) 
   const next = order[(position + 1) % players.length];
 
   useEffect(() => {
-    if (timer.done) vibrate([200, 100, 200]);
+    if (timer.done) {
+      vibrate([200, 100, 200]);
+      playTimesUp();
+    }
   }, [timer.done]);
 
   const mm = Math.floor(timer.remaining / 60);
@@ -178,6 +184,23 @@ export function ClueScreen({ players, round, timerMinutes, onVote }: ClueProps) 
         })}
       </ol>
       <p className="hint">Each player gives one clue. Tap Next after each one, then talk it out.</p>
+
+      <h2 className="section-title">Something go wrong?</h2>
+      <Button variant="ghost" onClick={() => setConfirmRedeal(true)}>
+        Redeal this round
+      </Button>
+      {confirmRedeal && (
+        <Confirm
+          title="Redeal this round?"
+          message="Everyone gets a new card with a fresh word and fresh roles. Nothing is scored."
+          confirmLabel="Redeal"
+          onConfirm={() => {
+            setConfirmRedeal(false);
+            onRedeal();
+          }}
+          onCancel={() => setConfirmRedeal(false)}
+        />
+      )}
     </Screen>
   );
 }
@@ -188,11 +211,13 @@ interface VoteProps {
   players: string[];
   round: RoundState;
   k: number;
+  /** Previous picks, when coming back from the reveal screen. */
+  initial?: number[];
   onReveal: (voted: number[]) => void;
 }
 
-export function VoteScreen({ players, round, k, onReveal }: VoteProps) {
-  const [picked, setPicked] = useState<number[]>([]);
+export function VoteScreen({ players, round, k, initial, onReveal }: VoteProps) {
+  const [picked, setPicked] = useState<number[]>(initial ?? []);
   const toggle = (i: number) =>
     setPicked((p) => {
       if (p.includes(i)) return p.filter((x) => x !== i);
@@ -239,10 +264,11 @@ interface RevealProps {
   round: RoundState;
   settings: Settings;
   voted: number[];
+  onBack: () => void;
   onDone: (guessed: Record<number, boolean>) => void;
 }
 
-export function RevealScreen({ players, round, settings, voted, onDone }: RevealProps) {
+export function RevealScreen({ players, round, settings, voted, onBack, onDone }: RevealProps) {
   const [wordShown, setWordShown] = useState(false);
   const [guessed, setGuessed] = useState<Record<number, boolean>>({});
   const { word } = round;
@@ -298,6 +324,12 @@ export function RevealScreen({ players, round, settings, voted, onDone }: Reveal
 
       {caught.length > 0 && !wordShown && (
         <p className="note">Caught imposters, say your guess for the word out loud now.</p>
+      )}
+
+      {!wordShown && (
+        <Button variant="ghost" onClick={onBack}>
+          Back to vote
+        </Button>
       )}
 
       {wordShown && (
@@ -357,12 +389,13 @@ interface ScoreboardProps {
   scores: number[];
   points: number[] | null;
   round: number;
+  history: RoundRecord[];
   onNext: () => void;
   onSettings: () => void;
   onEnd: () => void;
 }
 
-export function ScoreboardScreen({ players, scores, points, round, onNext, onSettings, onEnd }: ScoreboardProps) {
+export function ScoreboardScreen({ players, scores, points, round, history, onNext, onSettings, onEnd }: ScoreboardProps) {
   const rows = standings(scores);
   const [confirmEnd, setConfirmEnd] = useState(false);
   return (
@@ -384,6 +417,31 @@ export function ScoreboardScreen({ players, scores, points, round, onNext, onSet
       }
     >
       <ScoreTable players={players} rows={rows} points={points} />
+      {history.length > 0 && (
+        <details className="details">
+          <summary className="details__summary">Round history</summary>
+          <ol className="history">
+            {[...history].reverse().map((h) => (
+              <li key={h.round} className="history__row">
+                <span className="history__round">R{h.round}</span>
+                <span className="history__body">
+                  <span className="history__word">
+                    {h.word} <span className="history__cat">· {h.category}</span>
+                    {h.decoy && <span className="history__cat"> · decoy {h.decoy}</span>}
+                  </span>
+                  <span className="history__imp">
+                    {h.troll
+                      ? 'Troll round, everyone was the imposter'
+                      : h.imposters
+                          .map((i) => `${i.name} ${i.caught ? (i.guessed ? 'caught, guessed it' : 'caught') : 'got away'}`)
+                          .join(' · ')}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </details>
+      )}
       {confirmEnd && (
         <Confirm
           title="End the game?"
